@@ -9,6 +9,12 @@ Column
         source: "Image1.jpg"
         width: intWidth
         fillMode: Image.PreserveAspectFit
+        MouseArea
+        {
+            anchors.fill: parent
+            onClicked:
+                nom.color = "yellow"
+        }
     }
     Text {
         id: nom
