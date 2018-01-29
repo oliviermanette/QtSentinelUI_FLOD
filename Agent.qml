@@ -42,6 +42,7 @@ Column
     {
         nom.text = accInfo.getAgentNomLst(lintIndex);
         lintIdentifiantUser = accInfo.getAgentId(lintIndex);
+        console.log("Index : "+lintIndex);
     }
 
 
