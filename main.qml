@@ -151,7 +151,9 @@ Window
                         color: "#FCFCFC"
                         font.pixelSize: smallFontSize
                     }
-                    Light{
+                    Light
+                    {
+
 
                     }
                 }
@@ -171,6 +173,11 @@ Window
                         font.bold: false
                         color: "#FCFCFC"
                         font.pixelSize: smallFontSize
+                    }
+                    Light
+                    {
+
+
                     }
                 }
                 Timer
