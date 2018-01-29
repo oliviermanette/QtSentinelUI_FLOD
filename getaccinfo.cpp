@@ -554,10 +554,9 @@ QString getAccInfo::getMontreSN(int lintIndividu, bool lblMontreGauche)
         if (sqry.exec(lstQuery))
         {
             int lintCount=0;
-            sqry.first();
+            if (sqry.first())
             {
                 lintCount++;
-                //qDebug() << sqry.value(0).toString();
                 return sqry.value(0).toString();
             }
         }
@@ -596,6 +595,28 @@ int getAccInfo::getNombreAgents()
         else
             qDebug() << lstQuery;
         return -9999;
+    }
+}
+
+QString getAccInfo::getAgentNomLst(int lintIndex)
+{
+    if (!mydb.open())
+        return "-9000";
+    else
+    {
+        QSqlQuery sqry(mydb);
+        QString lstQuery = "SELECT Nom from Identites limit 1 offset "+QString::number(lintIndex);
+
+        if (sqry.exec(lstQuery))
+        {
+            if (sqry.first())
+            {
+                return sqry.value(0).toString();
+            }
+        }
+        else
+            qDebug() << lstQuery;
+        return "-9999";
     }
 }
 

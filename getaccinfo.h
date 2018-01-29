@@ -46,7 +46,8 @@ public:
     Q_INVOKABLE QString getDBValue(QString qstrTable, QString qstrRow, int lintIndex);
     Q_INVOKABLE QString getMontreSN(int lintIndividu, bool lblMontreGauche=1);
     Q_INVOKABLE int getIndividuAge(int lintIndividu);
-    Q_INVOKABLE int getNombreAgents();
+    Q_INVOKABLE int getNombreAgents(); // SELECT  count(Id) from Identites
+    Q_INVOKABLE QString getAgentNomLst(int lintIndex); // SELECT Nom from Identites limit 1 offset lintIndex
 
     Q_INVOKABLE int getNbDechets(bool lblMontre=0);
     Q_INVOKABLE int getNbDechetsTotal(bool lblMontre=0);

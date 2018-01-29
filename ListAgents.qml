@@ -2,6 +2,7 @@ import QtQuick 2.0
 
 Grid
 {
+    property int intNbAgents: 0
     anchors.horizontalCenter: parent.horizontalCenter
     anchors.verticalCenter: parent.verticalCenter
     columns: 6
@@ -22,14 +23,19 @@ Grid
         onTriggered:
         {
             //Initialisation de l affichage
-            txtNbAgents.text = accInfo.getNombreAgents();
+            intNbAgents = accInfo.getNombreAgents();
         }
     }
 
-
-    Agent {
+    Repeater
+    {
+        model: intNbAgents
+        Agent {
+            lintIndex : index
+        }
 
     }
+
 
 }
 

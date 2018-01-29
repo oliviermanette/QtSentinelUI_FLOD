@@ -1,9 +1,21 @@
 import QtQuick 2.0
 
-
-Image
+Column
 {
-    source: "Image1.jpg"
-    width: parent.width /2.5
-    fillMode: Image.PreserveAspectFit
+    property int lintIndex: -1
+    Image
+    {
+        source: "Image1.jpg"
+        width: parent.width /2.5
+        fillMode: Image.PreserveAspectFit
+    }
+    Text {
+        id: nom
+        text: qsTr("inconnu")
+    }
+    onLintIndexChanged:
+    {
+        nom.text = accInfo.getAgentNomLst(lintIndex)
+    }
+
 }
