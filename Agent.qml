@@ -23,11 +23,6 @@ Column
     {
         nom.text = accInfo.getAgentNomLst(lintIndex)
     }
-    MouseArea
-    {
-        anchors.fill: parent
-        onClicked:
-            nom.color = "yellow"
-    }
+
 
 }
