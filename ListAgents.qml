@@ -3,7 +3,6 @@ import QtQuick 2.0
 Grid
 {
     property int intNbAgents: 0
-
     columns: 6
     spacing: 6
 

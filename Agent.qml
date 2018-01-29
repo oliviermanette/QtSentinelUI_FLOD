@@ -6,7 +6,7 @@ Column
     Image
     {
         source: "Image1.jpg"
-        width: parent.width /2.5
+        width: 50
         fillMode: Image.PreserveAspectFit
     }
     Text {
