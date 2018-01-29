@@ -627,7 +627,7 @@ int getAccInfo::getAgentId(int lintIndex)
     else
     {
         QSqlQuery sqry(mydb);
-        QString lstQuery = "SELECT Id from Identites limit 1 offset "+QString::number(lintIndex);
+        QString lstQuery = "SELECT Id,Nom from Identites limit 1 offset "+QString::number(lintIndex);
 
         if (sqry.exec(lstQuery))
         {
