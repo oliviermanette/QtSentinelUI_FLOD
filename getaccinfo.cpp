@@ -514,7 +514,7 @@ QString getAccInfo::getDBValue(QString qstrTable, QString qstrRow, int lintIndex
 {
     if (!mydb.open())
     {
-        return "-9999";
+        return "-9000";
     }
     else
     {
@@ -540,7 +540,7 @@ QString getAccInfo::getMontreSN(int lintIndividu, bool lblMontreGauche)
 {
     if (!mydb.open())
     {
-        return "-9999";
+        return "-9000";
     }
     else
     {
@@ -575,6 +575,28 @@ int getAccInfo::getIndividuAge(int lintIndividu)
     QDate ldateNaissance(lstrYear.toInt(),lstrMonth.toInt(),lstrDay.toInt());
     //qDebug() << ldateNaissance.daysTo(QDate::currentDate());
     return ldateNaissance.daysTo(QDate::currentDate())/365.25;
+}
+
+int getAccInfo::getNombreAgents()
+{
+    if (!mydb.open())
+        return -9000;
+    else
+    {
+        QSqlQuery sqry(mydb);
+        QString lstQuery = "SELECT  count(Id) from Identites";
+
+        if (sqry.exec(lstQuery))
+        {
+            if (sqry.first())
+            {
+                return sqry.value(0).toInt();//.toString();
+            }
+        }
+        else
+            qDebug() << lstQuery;
+        return -9999;
+    }
 }
 
 int getAccInfo::getNbDechets(bool lblMontre)

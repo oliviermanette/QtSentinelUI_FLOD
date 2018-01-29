@@ -10,5 +10,7 @@
         <file>AfficheurTexteValeur.qml</file>
         <file>FLOD_DoubleArc.qml</file>
         <file>Light.qml</file>
+        <file>ListAgents.qml</file>
+        <file>Agent.qml</file>
     </qresource>
 </RCC>
