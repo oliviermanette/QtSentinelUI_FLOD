@@ -15,7 +15,9 @@ Column
             anchors.fill: parent
             onClicked:
             {
-                root.identifiantUser = accInfo.getAgentId(lintIndex);
+                root.identifiantUser = lintIdentifiantUser;
+                console.log("L'identifiant rapporté : "+ root.identifiantUser);
+                console.log("l'index en question : "+ lintIndex);
                 nom.color = "yellow"; // This is available in all editors.
                 voirdetailAgent.visible = true;
                 voirdetailAgent.enabled = true;
@@ -37,7 +39,8 @@ Column
     }
     onLintIndexChanged:
     {
-        nom.text = accInfo.getAgentNomLst(lintIndex)
+        nom.text = accInfo.getAgentNomLst(lintIndex);
+        lintIdentifiantUser = accInfo.getAgentId(lintIndex);
     }
 
 
