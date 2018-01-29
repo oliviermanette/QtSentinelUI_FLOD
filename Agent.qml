@@ -16,11 +16,11 @@ Column
             onClicked:
             {
                 root.identifiantUser = lintIdentifiantUser;
-                console.log("L'identifiant rapporté : "+ root.identifiantUser);
-                console.log("l'index en question : "+ lintIndex);
+                voirdetailAgent.lintUpdate = voirdetailAgent.lintUpdate + 1;
                 nom.color = "yellow"; // This is available in all editors.
                 voirdetailAgent.visible = true;
                 voirdetailAgent.enabled = true;
+
                 voirlistAgents.visible = false;
                 voirlistAgents.enabled = false;
             }

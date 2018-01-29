@@ -5,6 +5,23 @@ Row
 {
     padding: generalPadding
     spacing: generalSpacing
+    property int lintUpdate: 0
+
+    onLintUpdateChanged:
+    {
+        serialNoD = accInfo.getMontreSN(identifiantUser,0);//" - "
+        serialNoG = accInfo.getMontreSN(identifiantUser);
+        lblAge.text = accInfo.getIndividuAge(identifiantUser);
+        lblPrenom.text = accInfo.getDBValue("Identites","Prenom",identifiantUser);
+        lblNom.text = accInfo.getDBValue("Identites","Nom",identifiantUser);//"COYOTTE"
+        accInfo.autoreadFile(serialNoG,serialNoD);
+        if (gbolTotal)
+            columnDisplay.displayTotalValues();
+        else
+            columnDisplay.displayInstantValues(chrtViewSmall.blWatch);
+        tpsTravail.extension = accInfo.getDureeTotaleEnregistrementEnMinutes();
+    }
+
     Rectangle
     {
         width: root.width/4.728
@@ -178,6 +195,7 @@ Row
                     tpsTravail.extension = accInfo.getDureeTotaleEnregistrementEnMinutes();
                 }
             }
+
             Button
             {
                 id: btnTotal
