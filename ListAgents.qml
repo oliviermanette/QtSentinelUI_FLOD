@@ -3,15 +3,9 @@ import QtQuick 2.0
 Grid
 {
     property int intNbAgents: 0
-    anchors.horizontalCenter: parent.horizontalCenter
-    anchors.verticalCenter: parent.verticalCenter
+
     columns: 6
     spacing: 6
-
-    Text {
-        id: txtNbAgents
-        text: qsTr("Cannot open database !")
-    }
 
     Timer
     {
