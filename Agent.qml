@@ -4,6 +4,7 @@ Column
 {
     property int lintIndex: -1
     property int intWidth: 80
+    property int lintIdentifiantUser: -1
     Image
     {
         source: "Image1.jpg"
@@ -13,7 +14,16 @@ Column
         {
             anchors.fill: parent
             onClicked:
-                nom.color = "yellow"
+            {
+                root.identifiantUser = accInfo.getAgentId(lintIndex);
+                nom.color = "yellow"; // This is available in all editors.
+                voirdetailAgent.visible = true;
+                voirdetailAgent.enabled = true;
+                voirlistAgents.visible = false;
+                voirlistAgents.enabled = false;
+            }
+
+
         }
     }
     Text {

@@ -26,9 +26,18 @@ Window
     color: "#606060"
     visibility:  Window.FullScreen // <<#*********************** A decommenter
 
-   // DetailAgent
+    DetailAgent
+    {
+        id: voirdetailAgent
+        visible: false
+        enabled: false
+    }
+
     ListAgents
     {
+        id: voirlistAgents
+        visible: true
+        enabled: true
 
     }
 

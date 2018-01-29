@@ -620,6 +620,28 @@ QString getAccInfo::getAgentNomLst(int lintIndex)
     }
 }
 
+int getAccInfo::getAgentId(int lintIndex)
+{
+    if (!mydb.open())
+        return -9000;
+    else
+    {
+        QSqlQuery sqry(mydb);
+        QString lstQuery = "SELECT Id from Identites limit 1 offset "+QString::number(lintIndex);
+
+        if (sqry.exec(lstQuery))
+        {
+            if (sqry.first())
+            {
+                return sqry.value(0).toInt();
+            }
+        }
+        else
+            qDebug() << lstQuery;
+        return -9999;
+    }
+}
+
 int getAccInfo::getNbDechets(bool lblMontre)
 {
     return gIntNbDechets[lblMontre];
