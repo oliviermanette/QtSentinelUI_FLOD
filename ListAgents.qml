@@ -16,7 +16,11 @@ Grid
         onTriggered:
         {
             //Initialisation de l affichage
-            intNbAgents = accInfo.getNombreAgents();
+            var lintNbAgents = accInfo.getNombreAgents();
+            if (lintNbAgents>0)
+                intNbAgents = lintNbAgents;
+            else
+                intNbAgents = 0;
         }
     }
 
@@ -28,6 +32,11 @@ Grid
         }
 
     }
+    Image {
+        id: addNewAgent
+        source: "+.jpg"
+    }
+
 
 
 }

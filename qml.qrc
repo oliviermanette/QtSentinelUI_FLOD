@@ -12,5 +12,6 @@
         <file>Light.qml</file>
         <file>ListAgents.qml</file>
         <file>Agent.qml</file>
+        <file>+.jpg</file>
     </qresource>
 </RCC>
