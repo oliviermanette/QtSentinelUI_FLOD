@@ -198,8 +198,8 @@ Row
 
             Button
             {
-                id: btnTotal
-               text: "Total"
+               id       : btnTotal
+               text     : "Total"
                onClicked:
                    if (gbolTotal)
                    {
@@ -226,6 +226,26 @@ Row
                {
                    btnBackTotal.color = "#0F6FC6"
                }
+            }
+            Button
+            {
+                id  : btnBackToList
+                text: "list"
+
+                background: Rectangle {
+                    color:"#0F6FC6"
+                    id:btnBack
+                    radius: 3
+                }
+                onPressed:
+                {
+                    btnBack.color = "yellow"
+                }
+                onReleased:
+                {
+                    btnBack.color = "#0F6FC6"
+                    conteneurGeneral.state = "ListAgents";
+                }
             }
             Button
             {

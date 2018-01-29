@@ -19,11 +19,8 @@ Column
                 console.log("Identifiant demandé : "+ root.identifiantUser);
                 voirdetailAgent.lintUpdate = voirdetailAgent.lintUpdate + 1;
                 nom.color = "yellow"; // This is available in all editors.
-                voirdetailAgent.visible = true;
-                voirdetailAgent.enabled = true;
+                conteneurGeneral.state = "DetailAgent";
 
-                voirlistAgents.visible = false;
-                voirlistAgents.enabled = false;
             }
 
 

@@ -26,20 +26,53 @@ Window
     color: "#606060"
     visibility:  Window.FullScreen // <<#*********************** A decommenter
 
-    DetailAgent
+    Item
     {
-        id: voirdetailAgent
-        visible: false
-        enabled: false
+        id: conteneurGeneral
+        DetailAgent
+        {
+            id: voirdetailAgent
+            visible: false
+            enabled: false
+        }
+
+        ListAgents
+        {
+            id: voirlistAgents
+            visible: true
+            enabled: true
+
+        }
+        states: [
+            State {
+                name: "ListAgents"
+                PropertyChanges {
+                    target: voirlistAgents
+                    visible:true
+                    enabled:true
+                }
+                PropertyChanges {
+                    target: voirdetailAgent
+                    visible:false
+                    enabled:false
+                }
+            },
+            State {
+                name: "DetailAgent"
+                PropertyChanges {
+                    target: voirlistAgents
+                    visible:false
+                    enabled:false
+                }
+                PropertyChanges {
+                    target: voirdetailAgent
+                    visible:true
+                    enabled:true
+                }
+            }
+        ]
     }
 
-    ListAgents
-    {
-        id: voirlistAgents
-        visible: true
-        enabled: true
-
-    }
 
 }
 
