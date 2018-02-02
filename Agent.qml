@@ -22,6 +22,7 @@ Column
                 conteneurGeneral.state = "DetailAgent";
 
             }
+
             layer.enabled: true
             layer.effect: OpacityMask
             {
