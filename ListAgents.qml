@@ -35,6 +35,7 @@ Grid
     Image {
         id: addNewAgent
         source: "+.jpg"
+
     }
 
 
