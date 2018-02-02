@@ -22,9 +22,20 @@ Column
                 conteneurGeneral.state = "DetailAgent";
 
             }
-
-
+            layer.enabled: true
+            layer.effect: OpacityMask
+            {
+                maskSource: mask
+            }
         }
+    }
+    Rectangle
+    {
+        id: mask
+        width: 500
+        height: 500
+        radius: 250
+        visible: false
     }
     Text {
         id: nom
