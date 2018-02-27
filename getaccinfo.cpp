@@ -21,9 +21,9 @@ getAccInfo::getAccInfo(QObject *parent) : QObject(parent)
 
     //mydb.setDatabaseName("/home/eldecog/untitled/db/ptms.db");
     mydb.setHostName("localhost");
-    mydb.setDatabaseName('vaucheptms');
+    mydb.setDatabaseName("vaucheptms");
     mydb.setUserName("ptms");
-    mydb.setPassword('Iluv2w0rk');
+    mydb.setPassword("Iluv2w0rk");
     bool ok = mydb.open();
     //mydb.removeDatabase("ptms.db");
 }
