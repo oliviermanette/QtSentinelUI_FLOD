@@ -78,7 +78,8 @@ private:
     int maxPos(float* lfltTableau, int lintTailleTableau, int lintDebut, int lintFin);
     int minPos(float* lfltTableau, int lintTailleTableau, int lintDebut, int lintFin);
 
-    QSqlDatabase mydb = QSqlDatabase::addDatabase("QSQLITE");
+    //QSqlDatabase mydb = QSqlDatabase::addDatabase("QSQLITE");
+    QSqlDatabase mydb = QSqlDatabase::addDatabase("QMYSQL");
 
     int gintNombreDonnees;
     int gintNombreAxes[WATCHPERAGENT];

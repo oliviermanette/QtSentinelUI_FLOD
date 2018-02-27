@@ -19,7 +19,12 @@ getAccInfo::getAccInfo(QObject *parent) : QObject(parent)
     gFltRythmeMoyenMVT = 0;
     setDureeTransmission(DUREETransmissionDEFAUT);
 
-    mydb.setDatabaseName("/home/eldecog/untitled/db/ptms.db");
+    //mydb.setDatabaseName("/home/eldecog/untitled/db/ptms.db");
+    mydb.setHostName("localhost");
+    mydb.setDatabaseName('vaucheptms');
+    mydb.setUserName("ptms");
+    mydb.setPassword('Iluv2w0rk');
+    bool ok = mydb.open();
     //mydb.removeDatabase("ptms.db");
 }
 

@@ -1,0 +1,1 @@
+SELECT count(*) from Sessions, (select Identites.Id FROM Identites, Montres WHERE Identites.Montre_Droit=Montres.ID OR Identites.Montre_Gauche=Montres.Id GROUP BY Identites.Id) AS toto WHERE Sessions.Identite=toto.Id
