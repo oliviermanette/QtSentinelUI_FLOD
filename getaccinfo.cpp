@@ -551,11 +551,11 @@ QString getAccInfo::getMontreSN(int lintIndividu, bool lblMontreGauche)
     {
         //qDebug() << "Database is opened!";
         QSqlQuery sqry(mydb);
-        QString lstQuery = "SELECT Montres.codeID from Identites, Montres where Identites.Id="+QString::number(lintIndividu);
+        QString lstQuery = "SELECT montres.codeID from identites, Montres where identites.Id="+QString::number(lintIndividu);
         if (lblMontreGauche)
-            lstQuery += " and Identites.Montre_Gauche=Montres.Id";
+            lstQuery += " and identites.Montre_Gauche=Montres.Id";
         else
-            lstQuery += " and Identites.Montre_Droit=Montres.Id";
+            lstQuery += " and identites.Montre_Droit=Montres.Id";
         if (sqry.exec(lstQuery))
         {
             int lintCount=0;
@@ -573,7 +573,7 @@ QString getAccInfo::getMontreSN(int lintIndividu, bool lblMontreGauche)
 
 int getAccInfo::getIndividuAge(int lintIndividu)
 {
-    QString lstrDateDeNaissance = getDBValue("Identites","Date_de_naissance",lintIndividu);
+    QString lstrDateDeNaissance = getDBValue("identites","Date_de_naissance",lintIndividu);
     //qDebug() <<  lstrDateDeNaissance.split("/")[0];
     QString lstrYear = lstrDateDeNaissance.split("/")[2], lstrMonth=lstrDateDeNaissance.split("/")[1], lstrDay=lstrDateDeNaissance.split("/")[0];
     QDate ldateNaissance(lstrYear.toInt(),lstrMonth.toInt(),lstrDay.toInt());
@@ -588,7 +588,7 @@ int getAccInfo::getNombreAgents()
     else
     {
         QSqlQuery sqry(mydb);
-        QString lstQuery = "SELECT  count(Id) from Identites";
+        QString lstQuery = "SELECT  count(Id) from identites";
 
         if (sqry.exec(lstQuery))
         {
@@ -610,7 +610,7 @@ QString getAccInfo::getAgentNomLst(int lintIndex)
     else
     {
         QSqlQuery sqry(mydb);
-        QString lstQuery = "SELECT Nom from Identites limit 1 offset "+QString::number(lintIndex);
+        QString lstQuery = "SELECT Nom from identites limit 1 offset "+QString::number(lintIndex);
 
         if (sqry.exec(lstQuery))
         {
@@ -632,7 +632,7 @@ int getAccInfo::getAgentId(int lintIndex)
     else
     {
         QSqlQuery sqry(mydb);
-        QString lstQuery = "SELECT Id,Nom from Identites limit 1 offset "+QString::number(lintIndex);
+        QString lstQuery = "SELECT Id,Nom from identites limit 1 offset "+QString::number(lintIndex);
 
         if (sqry.exec(lstQuery))
         {
