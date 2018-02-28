@@ -551,7 +551,7 @@ QString getAccInfo::getMontreSN(int lintIndividu, bool lblMontreGauche)
     {
         //qDebug() << "Database is opened!";
         QSqlQuery sqry(mydb);
-        QString lstQuery = "SELECT montres.codeID from identites, Montres where identites.Id="+QString::number(lintIndividu);
+        QString lstQuery = "SELECT montres.codeID from identites, montres where identites.Id="+QString::number(lintIndividu);
         if (lblMontreGauche)
             lstQuery += " and identites.Montre_Gauche=Montres.Id";
         else

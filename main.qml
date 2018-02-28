@@ -29,6 +29,7 @@ Window
     Item
     {
         id: conteneurGeneral
+        /*
         DetailAgent
         {
             id: voirdetailAgent
@@ -36,13 +37,14 @@ Window
             enabled: false
         }
 
+
         ListAgents
         {
             id: voirlistAgents
             visible: true
             enabled: true
 
-        }
+        }*/
         states: [
             State {
                 name: "ListAgents"
