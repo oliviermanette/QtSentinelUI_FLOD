@@ -15,21 +15,26 @@ Window
     property int smallFontSize: 5
     property int fontSize: 8
     property int bigFontSize: 12
-    property int identifiantUser: 1
+    property int identifiantUser: 0
 
     property string serialNoG: ""
     property string serialNoD: ""
+    property string detailAgentState: ""
 
     id: root
     visible: true
     title: qsTr("Vauché Prevention des TMS - FLOD")
     color: "#606060"
-    visibility:  Window.FullScreen // <<#*********************** A decommenter
+    //visibility:  Window.FullScreen // <<#*********************** A decommenter
+    onDetailAgentStateChanged: {
+        voirdetailAgent.state=detailAgentState;
+       // console.log("STATUS onStateChange : "+voirdetailAgent.state);
+    }
 
     Item
     {
         id: conteneurGeneral
-        /*
+
         DetailAgent
         {
             id: voirdetailAgent
@@ -38,13 +43,14 @@ Window
         }
 
 
+
         ListAgents
         {
             id: voirlistAgents
             visible: true
             enabled: true
 
-        }*/
+        }
         states: [
             State {
                 name: "ListAgents"

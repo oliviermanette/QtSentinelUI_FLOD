@@ -218,7 +218,8 @@ int getAccInfo::getNbMouvements(bool lblMontre)
 
     CaracteriseMVT();
 
-    return gIntNbMVT[lblMontre];
+    return gIntNbMVT[lblMontre];//*/
+    return lblMontre;
 }
 
 float getAccInfo::getNiveauRisque(int lintIndividu)
@@ -240,14 +241,12 @@ float getAccInfo::getNiveauRisque(int lintIndividu)
 
     lfltRisqueTampon +=lintNbTotalMVT/1000; // au dela de combien d'actions technique c est chaud ?
 
-
     //le rythme moyen
     float lfltRythme = getFltRythmeMoyenMVT();// TODO cette fonction doit dependre de l individu concern2
     lfltRisqueTampon += lfltRythme/60;
 
     lfltRythme = getFltRythmeMoyenMVT(1);// TODO cette fonction doit dependre de l individu concern2
     lfltRisqueTampon += lfltRythme/60;
-
 
     // le rythme cardiaque
     // TODO
@@ -525,13 +524,14 @@ QString getAccInfo::getDBValue(QString qstrTable, QString qstrRow, int lintIndex
     {
         //qDebug() << "Database is opened!";
         QSqlQuery sqry(mydb);
+        qDebug() <<"SELECT "+qstrRow+" FROM "+ qstrTable + " WHERE Id="+QString::number(lintIndex);
         if (sqry.exec("SELECT "+qstrRow+" FROM "+ qstrTable + " WHERE Id="+QString::number(lintIndex)))
         {
             int lintCount=0;
             sqry.first();
             {
                 lintCount++;
-                //qDebug() << sqry.value(0).toString();
+                qDebug() << sqry.value(0).toString();
                 return sqry.value(0).toString();
             }
         }
@@ -553,9 +553,9 @@ QString getAccInfo::getMontreSN(int lintIndividu, bool lblMontreGauche)
         QSqlQuery sqry(mydb);
         QString lstQuery = "SELECT montres.codeID from identites, montres where identites.Id="+QString::number(lintIndividu);
         if (lblMontreGauche)
-            lstQuery += " and identites.Montre_Gauche=Montres.Id";
+            lstQuery += " and identites.Montre_Gauche=montres.Id";
         else
-            lstQuery += " and identites.Montre_Droit=Montres.Id";
+            lstQuery += " and identites.Montre_Droit=montres.Id";
         if (sqry.exec(lstQuery))
         {
             int lintCount=0;
@@ -575,7 +575,7 @@ int getAccInfo::getIndividuAge(int lintIndividu)
 {
     QString lstrDateDeNaissance = getDBValue("identites","Date_de_naissance",lintIndividu);
     //qDebug() <<  lstrDateDeNaissance.split("/")[0];
-    QString lstrYear = lstrDateDeNaissance.split("/")[2], lstrMonth=lstrDateDeNaissance.split("/")[1], lstrDay=lstrDateDeNaissance.split("/")[0];
+    QString lstrYear = lstrDateDeNaissance.split("-")[0], lstrMonth=lstrDateDeNaissance.split("-")[1], lstrDay=lstrDateDeNaissance.split("-")[2];
     QDate ldateNaissance(lstrYear.toInt(),lstrMonth.toInt(),lstrDay.toInt());
     //qDebug() << ldateNaissance.daysTo(QDate::currentDate());
     return ldateNaissance.daysTo(QDate::currentDate())/365.25;

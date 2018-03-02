@@ -30,7 +30,6 @@ Grid
         Agent {
             lintIndex : index
         }
-
     }
     Image {
         id: addNewAgent

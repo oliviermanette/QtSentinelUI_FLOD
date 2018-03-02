@@ -17,10 +17,12 @@ Column
             {
                 root.identifiantUser = lintIdentifiantUser;
                 console.log("Identifiant demandé : "+ root.identifiantUser);
-                voirdetailAgent.lintUpdate = voirdetailAgent.lintUpdate + 1;
+
                 nom.color = "yellow"; // This is available in all editors.
                 conteneurGeneral.state = "DetailAgent";
 
+                root.detailAgentState = "Inactif";
+                voirdetailAgent.lintUpdate = voirdetailAgent.lintUpdate + 1;
             }
         }
     }
