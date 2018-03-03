@@ -744,6 +744,36 @@ QString getAccInfo::getSessionDuration(int lintIndividu, int lintIndex)
     }
 }
 
+bool getAccInfo::setSessionMustStart(int lintIndividu)
+{
+    if (!mydb.open())
+        return false;
+    else
+    {
+        QSqlQuery sqry(mydb);
+        QString lstQuery = "select identites.Montre_Gauche from identites where identites.Id="+QString::number(lintIndividu);
+
+        qDebug() << lstQuery;
+
+        if (sqry.exec(lstQuery))
+        {
+            if (sqry.first())
+            {
+                lstQuery = "update montres set montres.status='muststart' WHERE Id="+sqry.value(0).toString();
+                if (sqry.exec(lstQuery))
+                    return true;
+                else
+                    return false;
+            }
+            else
+                return false;
+        }
+        else
+            qDebug() << lstQuery;
+        return false;
+    }
+}
+
 int getAccInfo::getNbDechets(bool lblMontre)
 {
     return gIntNbDechets[lblMontre];

@@ -9,6 +9,17 @@ Row
         State {
             name: "Inactif"
             PropertyChanges {
+                target: btnContact
+                visible:false
+                enabled:false
+
+            }
+            PropertyChanges {
+                target: btnStatus
+                visible:false
+                enabled:false
+            }
+            PropertyChanges {
                 target:columIdentite
                 visible:true
                 enabled:true
@@ -46,6 +57,21 @@ Row
         State {
             name: "Present"
             PropertyChanges {
+                target: btnContact
+                visible:true
+                enabled:true
+
+            }
+            PropertyChanges {
+                target: btnStatus
+                visible:true
+                enabled:true
+            }
+            PropertyChanges {
+                target: lblbtnStatus
+                text: "Commencer"
+            }
+            PropertyChanges {
                 target:columIdentite
                 visible:true
                 enabled:true
@@ -75,6 +101,21 @@ Row
         },
         State {
             name: "Enregistrant"
+            PropertyChanges {
+                target: btnContact
+                visible:true
+                enabled:true
+
+            }
+            PropertyChanges {
+                target: btnStatus
+                visible:true
+                enabled:true
+            }
+            PropertyChanges {
+                target: lblbtnStatus
+                text: "Arreter !"
+            }
             PropertyChanges {
                 target:columIdentite
                 visible:true
@@ -111,44 +152,42 @@ Row
 
     onLintUpdateChanged: // ça change au moment où on clique sur l'icone
     {
-        /*
-        serialNoD = accInfo.getMontreSN(identifiantUser,0);//" - "
-        serialNoG = accInfo.getMontreSN(identifiantUser);
-       // lblAge.text = accInfo.getIndividuAge(identifiantUser);
-        lblPrenom.text = accInfo.getDBValue("identites","Prenom",identifiantUser);
-        lblNom.text = accInfo.getDBValue("identites","Nom",identifiantUser);//"COYOTTE"
-        accInfo.autoreadFile(serialNoG,serialNoD);
-        if (gbolTotal)
-            columnDisplay.displayTotalValues();
-        else
-            columnDisplay.displayInstantValues(chrtViewSmall.blWatch);
-        tpsTravail.extension = accInfo.getDureeTotaleEnregistrementEnMinutes();
-        */
          console.log("STATUS : "+ state.toString());
          console.log("STATUS : "+conteneurGeneral.state.toString());
         //Initialisation de l affichage
+        var lintNbSessions = accInfo.getNombreSessions(identifiantUser);
+
+        serialNoD = accInfo.getMontreSN(identifiantUser,0);//" - "
+        serialNoG = accInfo.getMontreSN(identifiantUser);
+        lblAge.text = accInfo.getIndividuAge(identifiantUser);
+        lblPrenom.text = accInfo.getDBValue("identites","Prenom",identifiantUser);
+        lblNom.text = accInfo.getDBValue("identites","Nom",identifiantUser);//"COYOTTE"
+
         switch (state)
         {
             case "Present":
-                var lintNbSessions = accInfo.getNombreSessions(identifiantUser);
+
                 if (lintNbSessions>0)
                     intNbSessions = lintNbSessions;
                 else
                     intNbSessions = 0;
                 break;
-            case "Inactif":
-                var lintNbSessions = accInfo.getNombreSessions(identifiantUser);
+            case "Inactif":                
                 if (lintNbSessions>0)
                     intNbSessions = lintNbSessions;
                 else
                     intNbSessions = 0;
                 break;
             case "Enregistrant":
+
+                accInfo.autoreadFile(serialNoG,serialNoD);
+                if (gbolTotal)
+                    columnDisplay.displayTotalValues();
+                else
+                    columnDisplay.displayInstantValues(chrtViewSmall.blWatch);
+                tpsTravail.extension = accInfo.getDureeTotaleEnregistrementEnMinutes();
                 break;
-
         }
-
-
     }
 
     Rectangle
@@ -237,6 +276,7 @@ Row
 
             Button
             {
+                id:btnContact
                 contentItem: Label {
                     color: "white"
                     text: " Contacter "
@@ -257,14 +297,46 @@ Row
                     toto.color = "#0F6FC6"
                 }
             }
-            Text
-            {
-                id: lblStatus
-                text: ""
-                font.bold: false
-                color: "#FCFCFC"
-                font.pixelSize: fontSize
+            Row{
+                spacing: 20
+                Text
+                {
+                    id: lblStatus
+                    text: ""
+                    font.bold: false
+                    color: "#FCFCFC"
+                    font.pixelSize: fontSize
+                }
+                Button
+                {
+                    id:btnStatus
+                    contentItem: Label {
+                        id:lblbtnStatus
+                        color: "white"
+                        text: " _ "
+                        font.bold: true
+                        font.pixelSize: smallFontSize
+                    }
+                    background: Rectangle {
+                        color:"#0F6FC6"
+                        id:titi
+                        radius: 3
+                    }
+                    onPressed:
+                    {
+                        if (accInfo.setSessionMustStart(identifiantUser))
+                            lblbtnStatus.text = "Envoye ...";
+                        titi.color = "yellow"
+                    }
+                    onReleased:
+                    {
+                        titi.color = "#0F6FC6"
+                    }
+                }
+
             }
+
+
             Row
             {
                 spacing: extendedSpacing
@@ -768,14 +840,17 @@ Row
                     triggeredOnStart: true
                     running: true
                     onTriggered: {
-                        /*
-                        //console.log("La montre affichee : "+chrtViewSmall.blWatch)
-                        accInfo.autoreadFile(serialNoG,serialNoD);
-                        if (gbolTotal)
-                            columnDisplay.displayTotalValues();
-                        else
-                            columnDisplay.displayInstantValues(chrtViewSmall.blWatch);
-                        tpsTravail.extension = accInfo.getDureeTotaleEnregistrementEnMinutes();*/
+                        switch (state)
+                        {
+                            case "Enregistrant":
+                                accInfo.autoreadFile(serialNoG,serialNoD);
+                                if (gbolTotal)
+                                    columnDisplay.displayTotalValues();
+                                else
+                                    columnDisplay.displayInstantValues(chrtViewSmall.blWatch);
+                                tpsTravail.extension = accInfo.getDureeTotaleEnregistrementEnMinutes();
+                                break;
+                        }
                     }
                 }
                 FlodDrawArcTitle

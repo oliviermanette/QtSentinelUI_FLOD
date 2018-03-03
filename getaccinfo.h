@@ -54,6 +54,8 @@ public:
     Q_INVOKABLE QString getSessiondDate(int lintIndividu, int lintIndex);
     Q_INVOKABLE QString getSessionDuration(int lintIndividu, int lintIndex);
 
+    Q_INVOKABLE bool setSessionMustStart(int lintIndividu);
+
     Q_INVOKABLE int getNbDechets(bool lblMontre=0);
     Q_INVOKABLE int getNbDechetsTotal(bool lblMontre=0);
 
