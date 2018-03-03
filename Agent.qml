@@ -5,6 +5,7 @@ Column
     property int lintIndex: -1
     property int intWidth: 80
     property int lintIdentifiantUser: -1
+    property int lintUserStatus:0
     Image
     {
         source: "Image1.jpg"
@@ -21,7 +22,19 @@ Column
                 nom.color = "yellow"; // This is available in all editors.
                 conteneurGeneral.state = "DetailAgent";
 
-                root.detailAgentState = "Inactif";
+                // Ici il doit vérifier quelle est la session de l'agent en question pour le recopier dans agentstate
+                switch (accInfo.getAgentStatus(lintIdentifiantUser))
+                {
+                    case 1:
+                        root.detailAgentState = "Present";
+                        break;
+                    case 2:
+                        root.detailAgentState = "Enregistrant";
+                        break;
+                    default:
+                        root.detailAgentState = "Inactif";
+                        break;
+                }
                 voirdetailAgent.lintUpdate = voirdetailAgent.lintUpdate + 1;
             }
         }
@@ -39,8 +52,7 @@ Column
     {
         nom.text = accInfo.getAgentNomLst(lintIndex);
         lintIdentifiantUser = accInfo.getAgentId(lintIndex);
-        console.log("Index : "+lintIndex+" retourne l'Id: "+ lintIdentifiantUser);
+        lintUserStatus = accInfo.getAgentStatus(lintIndex);
+        //console.log("Index : "+lintIndex+" retourne l'Id: "+ lintIdentifiantUser);
     }
-
-
 }

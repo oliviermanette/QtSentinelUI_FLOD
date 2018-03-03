@@ -12,9 +12,9 @@ Window
     property int generalSpacing: 5//generalPadding
     property int extendedSpacing: 10//generalSpacing * 3
     property int tailleFLODArc: 80//(width*height)/5500
-    property int smallFontSize: 5
-    property int fontSize: 8
-    property int bigFontSize: 12
+    property int smallFontSize: 10
+    property int fontSize: 14
+    property int bigFontSize: 20
     property int identifiantUser: 0
 
     property string serialNoG: ""

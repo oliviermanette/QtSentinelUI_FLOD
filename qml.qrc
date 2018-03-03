@@ -13,5 +13,6 @@
         <file>ListAgents.qml</file>
         <file>Agent.qml</file>
         <file>+.jpg</file>
+        <file>SessionRow.qml</file>
     </qresource>
 </RCC>

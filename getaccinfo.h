@@ -49,6 +49,10 @@ public:
     Q_INVOKABLE int getNombreAgents(); // SELECT  count(Id) from Identites
     Q_INVOKABLE QString getAgentNomLst(int lintIndex); // SELECT Nom from Identites limit 1 offset lintIndex
     Q_INVOKABLE int getAgentId(int lintIndex); // SELECT Id from Identites limit 1 offset lintIndex
+    Q_INVOKABLE int getAgentStatus(int lintIndex);
+    Q_INVOKABLE int getNombreSessions(int lintIndex);
+    Q_INVOKABLE QString getSessiondDate(int lintIndividu, int lintIndex);
+    Q_INVOKABLE QString getSessionDuration(int lintIndividu, int lintIndex);
 
     Q_INVOKABLE int getNbDechets(bool lblMontre=0);
     Q_INVOKABLE int getNbDechetsTotal(bool lblMontre=0);

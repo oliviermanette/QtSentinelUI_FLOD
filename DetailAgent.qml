@@ -9,39 +9,105 @@ Row
         State {
             name: "Inactif"
             PropertyChanges {
-              //  target: voirlistAgents
-//                visible:true
-  //              enabled:true
+                target:columIdentite
+                visible:true
+                enabled:true
             }
             PropertyChanges {
-    //            target: voirdetailAgent
-     //           visible:false
-      //          enabled:false
+                target:affichageNombreExtension
+                visible:false
+                enabled:false
+            }
+            PropertyChanges {
+                target:columnDisplay
+                visible:false
+                enabled:false
+            }
+            PropertyChanges {
+                target:lblStatus
+                text:"non connecté"
+                font.bold: false
+                color: "white"
+            }
+            PropertyChanges {
+                target:lightMontreGauche
+                color: "red"
+            }
+            PropertyChanges {
+                target:lightMontreDroit
+                color: "red"
+            }
+            PropertyChanges {
+                target:columnListSessions
+                visible:false
+                enabled:false
             }
         },
         State {
             name: "Present"
             PropertyChanges {
-        //        target: voirlistAgents
-         //       visible:false
-         //       enabled:false
+                target:columIdentite
+                visible:true
+                enabled:true
+            }
+
+            PropertyChanges {
+                target:columnListSessions
+                visible:true
+                enabled:true
             }
             PropertyChanges {
-          //      target: voirdetailAgent
-          //      visible:true
-           //     enabled:true
+                target:affichageNombreExtension
+                visible:false
+                enabled:false
+            }
+            PropertyChanges {
+                target:columnDisplay
+                visible:false
+                enabled:false
+            }
+            PropertyChanges {
+                target:lblStatus
+                text:"Connecté"
+                font.bold: true
+                color: "green"
             }
         },
         State {
             name: "Enregistrant"
+            PropertyChanges {
+                target:columIdentite
+                visible:true
+                enabled:true
+            }
+            PropertyChanges {
+                target:affichageNombreExtension
+                visible:true
+                enabled:true
+            }
+            PropertyChanges {
+                target:columnDisplay
+                visible:true
+                enabled:true
+            }
+            PropertyChanges {
+                target:lblStatus
+                text:"Enregistrement ..."
+                font.bold: true
+                color: "red"
+            }
+            PropertyChanges {
+                target:columnListSessions
+                visible:false
+                enabled:false
+            }
         }
-
     ]
-
 
     padding: generalPadding
     spacing: generalSpacing
     property int lintUpdate: 0
+    property int intNbSessions: 0
 
     onLintUpdateChanged: // ça change au moment où on clique sur l'icone
     {
@@ -60,6 +126,29 @@ Row
         */
          console.log("STATUS : "+ state.toString());
          console.log("STATUS : "+conteneurGeneral.state.toString());
+        //Initialisation de l affichage
+        switch (state)
+        {
+            case "Present":
+                var lintNbSessions = accInfo.getNombreSessions(identifiantUser);
+                if (lintNbSessions>0)
+                    intNbSessions = lintNbSessions;
+                else
+                    intNbSessions = 0;
+                break;
+            case "Inactif":
+                var lintNbSessions = accInfo.getNombreSessions(identifiantUser);
+                if (lintNbSessions>0)
+                    intNbSessions = lintNbSessions;
+                else
+                    intNbSessions = 0;
+                break;
+            case "Enregistrant":
+                break;
+
+        }
+
+
     }
 
     Rectangle
@@ -145,6 +234,7 @@ Row
                     font.pixelSize: fontSize
                 }
             }
+
             Button
             {
                 contentItem: Label {
@@ -167,9 +257,18 @@ Row
                     toto.color = "#0F6FC6"
                 }
             }
+            Text
+            {
+                id: lblStatus
+                text: ""
+                font.bold: false
+                color: "#FCFCFC"
+                font.pixelSize: fontSize
+            }
             Row
             {
                 spacing: extendedSpacing
+
                 Text
                 {
                     text: "Montre Gauche"
@@ -186,6 +285,7 @@ Row
                 }
                 Light
                 {
+                    id:lightMontreGauche
 
 
                 }
@@ -209,7 +309,7 @@ Row
                 }
                 Light
                 {
-
+                    id:lightMontreDroit
 
                 }
             }
@@ -294,6 +394,33 @@ Row
                text: "Quitter"
                onClicked:
                    Qt.quit()
+            }
+        }
+    }
+
+    Rectangle
+    {
+        width: root.width/2.9
+        height: root.height  - generalSpacing - generalPadding
+        id:columnListSessions
+        color: "#262626"
+        radius: 15
+
+        Column
+        {
+            padding: 40//generalPadding
+            spacing : 10//extendedSpacing
+
+
+
+            Repeater
+            {
+                model: intNbSessions
+
+                SessionRow {
+                    lintIndex : index
+                    lintIndividu: identifiantUser
+                }
             }
         }
     }

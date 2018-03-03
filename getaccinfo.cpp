@@ -647,6 +647,103 @@ int getAccInfo::getAgentId(int lintIndex)
     }
 }
 
+int getAccInfo::getAgentStatus(int lintIndex)
+{
+    if (!mydb.open())
+        return -9000;
+    else
+    {
+        QSqlQuery sqry(mydb);
+        QString lstQuery = "SELECT Actif from sessions where Identite="+QString::number(lintIndex)+" order by Id desc limit 1";
+
+        if (sqry.exec(lstQuery))
+        {
+            if (sqry.first())
+            {
+                return sqry.value(0).toInt();
+            }
+        }
+        else
+            qDebug() << lstQuery;
+        return -9999;
+    }
+}
+
+int getAccInfo::getNombreSessions(int lintIndex)
+{
+    if (!mydb.open())
+        return -9000;
+    else
+    {
+        QSqlQuery sqry(mydb);
+        QString lstQuery = "SELECT COUNT(*) from sessions where Identite="+QString::number(lintIndex);
+        qDebug() << lstQuery;
+
+        if (sqry.exec(lstQuery))
+        {
+            if (sqry.first())
+            {
+                qDebug() << sqry.value(0).toString();
+                return sqry.value(0).toInt();
+            }
+        }
+        else
+            qDebug() << lstQuery;
+        return -9999;
+    }
+}
+
+QString getAccInfo::getSessiondDate(int lintIndividu, int lintIndex)
+{
+    if (!mydb.open())
+        return "-9000";
+    else
+    {
+        QSqlQuery sqry(mydb);
+        QString lstQuery = "SELECT date_debut from sessions where Identite="+QString::number(lintIndividu)+" order by date_debut desc limit 1 offset "+QString::number(lintIndex);
+        qDebug() << lstQuery;
+
+        if (sqry.exec(lstQuery))
+        {
+            if (sqry.first())
+            {
+                qDebug() << sqry.value(0).toString();
+                QDateTime timestamp;
+                timestamp.setTime_t(sqry.value(0).toULongLong()/1000);
+                return timestamp.toString(Qt::SystemLocaleShortDate);
+            }
+        }
+        else
+            qDebug() << lstQuery;
+        return "-9999";
+    }
+}
+
+QString getAccInfo::getSessionDuration(int lintIndividu, int lintIndex)
+{
+    if (!mydb.open())
+        return "-9000";
+    else
+    {
+        QSqlQuery sqry(mydb);
+        QString lstQuery = "SELECT Duree from sessions where Identite="+QString::number(lintIndividu)+" order by date_debut desc limit 1 offset "+QString::number(lintIndex);
+        qDebug() << lstQuery;
+
+        if (sqry.exec(lstQuery))
+        {
+            if (sqry.first())
+            {
+                qDebug() << sqry.value(0).toString();
+
+                return QString::number(sqry.value(0).toULongLong()/60);
+            }
+        }
+        else
+            qDebug() << lstQuery;
+        return "-9999";
+    }
+}
+
 int getAccInfo::getNbDechets(bool lblMontre)
 {
     return gIntNbDechets[lblMontre];
