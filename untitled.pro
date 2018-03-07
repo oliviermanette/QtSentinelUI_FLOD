@@ -2,8 +2,13 @@ QT += quick
 QT += widgets
 QT += sql
 CONFIG += c++11
-#CONFIG+= static
+#CONFIG+= staticlib
+QT       += core websockets
+QT       -= gui
+CONFIG   += console
+CONFIG   -= app_bundle
 
+#QT += qml
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked deprecated (the exact warnings
 # depend on your compiler). Please consult the documentation of the
@@ -16,7 +21,8 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += main.cpp \
-    getaccinfo.cpp
+    getaccinfo.cpp \
+    ptmserver.cpp
 
 RESOURCES += qml.qrc
 
@@ -32,7 +38,9 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 HEADERS += \
-    getaccinfo.h
+    getaccinfo.h \
+    ptmserver.h
 
 DISTFILES += \
-    SessionRow.qml
+    SessionRow.qml \
+    testServer.html

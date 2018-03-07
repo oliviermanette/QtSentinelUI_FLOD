@@ -1,7 +1,7 @@
 import QtQuick 2.7
 import QtQuick.Window 2.2
-
-
+import QtQuick.Controls 2.1
+//import aero.flod.ptms 1.0
 
 Window
 {
@@ -15,7 +15,8 @@ Window
     property int smallFontSize: 10
     property int fontSize: 14
     property int bigFontSize: 20
-    property int identifiantUser: 0
+
+    property int identifiantUser: 0 // identifiant de l utilisateur affiche
 
     property string serialNoG: ""
     property string serialNoD: ""
@@ -43,6 +44,29 @@ Window
         }
 
 
+        Popup{
+            id: popup
+            x: 100
+            y: 100
+            width: 100
+            height: 100
+            Text {
+                id: infoPopUp
+                text: qsTr("text")
+            }
+            modal: true
+            focus: true
+            closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutsideParent
+
+            Connections {
+                target: myPTMSServer
+                onReceivedMessage: {
+                    //qmlString = signalString
+                    infoPopUp.text = message;
+                    popup.open();
+                }
+            }
+        }
 
         ListAgents
         {

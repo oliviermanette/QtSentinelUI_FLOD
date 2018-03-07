@@ -603,7 +603,7 @@ int getAccInfo::getNombreAgents()
     }
 }
 
-QString getAccInfo::getAgentNomLst(int lintIndex)
+QString getAccInfo::getAgentNomLst(int lintIndex, int lintStatus)
 {
     if (!mydb.open())
         return "-9000";
@@ -825,5 +825,10 @@ void getAccInfo::CaracteriseMVT()
                 }
             }
     }
+
+}
+
+void getAccInfo::parseServerMessage(QString strMessage)
+{
 
 }

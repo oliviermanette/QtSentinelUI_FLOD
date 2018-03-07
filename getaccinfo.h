@@ -47,7 +47,7 @@ public:
     Q_INVOKABLE QString getMontreSN(int lintIndividu, bool lblMontreGauche=1);
     Q_INVOKABLE int getIndividuAge(int lintIndividu);
     Q_INVOKABLE int getNombreAgents(); // SELECT  count(Id) from Identites
-    Q_INVOKABLE QString getAgentNomLst(int lintIndex); // SELECT Nom from Identites limit 1 offset lintIndex
+    Q_INVOKABLE QString getAgentNomLst(int lintIndex, int lintStatus=-1); // SELECT Nom from Identites limit 1 offset lintIndex
     Q_INVOKABLE int getAgentId(int lintIndex); // SELECT Id from Identites limit 1 offset lintIndex
     Q_INVOKABLE int getAgentStatus(int lintIndex);
     Q_INVOKABLE int getNombreSessions(int lintIndex);
@@ -131,8 +131,10 @@ private:
     void CaracteriseMVT(); //Fonction qui à partir de la combinaison des accéléromètres gfltCombinaisonAcc caractérise les mouvements
 
 signals:
+    //void totoSignal();
 
 public slots:
+    void parseServerMessage(QString strMessage);
 };
 
 #endif // GETACCINFO_H
