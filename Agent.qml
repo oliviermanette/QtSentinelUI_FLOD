@@ -51,7 +51,24 @@ Column
         horizontalAlignment: Text.AlignHCenter
         width: intWidth
         height: 20
+        color: "#FCFCFC"
     }
+
+    Connections {
+        target: myPTMSServer
+        onReceivedMessage: {
+            //qmlString = signalString
+            //voirlistAgents.update();
+            //voirdetailAgent.update();
+            //voirlistAgents.repeaterToto.itemAt(0).color = "#FFFFFF"
+            //kawabonga.lintIndex=1;
+            visible = false;
+
+            //infoPopUp.text = message;
+            //popup.open();
+        }
+    }
+
     onLintIndexChanged:
     {
         nom.text = accInfo.getAgentNomLst(lintIndex);
@@ -65,16 +82,23 @@ Column
                 visible = false;
                 if (lintColumnStatus!= 1)
                     visible = false;
+                else
+                    visible = true;
                 break;
             case 2:
                 state = "Enregistrant";
                 if (lintColumnStatus!= 2)
                     visible = false;
+                else
+                    visible = true;
                 break;
             default:
                 state = "Inactif";
                 if (lintColumnStatus!= 0)
                     visible = false;
+                else
+                    visible = true;
+                break;
         }
     }
     states: [

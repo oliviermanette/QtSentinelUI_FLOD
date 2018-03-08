@@ -21,5 +21,9 @@ Row {
         sessionDuree.text = accInfo.getSessionDuration(lintIndividu, lintIndex)+ " min.";
 
     }
+    MouseArea{
+        anchors.fill: parent
+
+    }
 
 }

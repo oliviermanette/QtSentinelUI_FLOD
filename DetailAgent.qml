@@ -483,7 +483,12 @@ Row
             padding: 40//generalPadding
             spacing : 10//extendedSpacing
 
-
+            Text {
+                id: txtTitleSessionList
+                text: qsTr("Liste des sessions :")
+                color: "#FCFCFC"
+                font.pixelSize: fontSize
+            }
 
             Repeater
             {
@@ -763,6 +768,7 @@ Row
                     height: 130
                     theme: ChartView.ChartThemeDark
                     antialiasing: true
+
                     margins.top: 0
                     margins.left:0
                     margins.right:0

@@ -41,18 +41,29 @@ Window
             id: voirdetailAgent
             visible: false
             enabled: false
-        }
+        }/*
+        Timer
+        {
+            id : sjkdshskfh
+            interval: 2000
+            repeat: false
+            triggeredOnStart: false
+            running: true
+            onTriggered: {
+                popup.open();
+            }
+        }*/
 
 
         Popup{
             id: popup
             x: 100
             y: 100
-            width: 100
-            height: 100
+            width: 200
+            height: 200
             Text {
                 id: infoPopUp
-                text: qsTr("text")
+                text: "toto = " + voirlistAgents.intNbAgents//repeaterToto//.color*/"toto")
             }
             modal: true
             focus: true
@@ -62,6 +73,11 @@ Window
                 target: myPTMSServer
                 onReceivedMessage: {
                     //qmlString = signalString
+                    voirlistAgents.update();
+                    voirdetailAgent.update();
+                    //voirlistAgents.repeaterToto.itemAt(0).color = "#FFFFFF"
+                    //kawabonga.lintIndex=1;
+
                     infoPopUp.text = message;
                     popup.open();
                 }

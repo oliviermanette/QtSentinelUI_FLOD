@@ -9,10 +9,12 @@ Item
         interval: 10
         repeat: false
         triggeredOnStart: true
+
         running: true
         onTriggered:
         {
             //Initialisation de l affichage
+
             var lintNbAgents = accInfo.getNombreAgents();
             if (lintNbAgents>0)
                 intNbAgents = lintNbAgents;
@@ -21,92 +23,73 @@ Item
         }
     }
 
+
+
     Row
     {
         spacing: 6
         padding: 3
-        Rectangle
+
+        Repeater
         {
-            width: root.width/3
-            height: root.height - generalSpacing - generalPadding
-            id: rctgEnregistrant
-            color: "#262626"
-            radius: root.width/100
-            Grid
+            model:["En poste","Sur site","Deconnecte"]
+            id:repeaterToto
+            Rectangle
             {
-
-                columns: 3
-                spacing: 6
-                anchors.fill: parent
-
-                Repeater
+                width: root.width/3- 100
+                height: root.height - generalSpacing - generalPadding
+                id: rctgEnregistrant
+                color: "#262626"
+                //visible: false
+                radius: root.width/100
+                property int idxStatus: 2-index
+                Column
                 {
-                    model: intNbAgents
-                    Agent {
-                        lintIndex : index
-                        lintColumnStatus: 2
+                    Text {
+                        id: txtTrie
+                        text: qsTr(modelData)
+                        color: "#FCFCFC"
+                        font.pixelSize: bigFontSize
+                        padding: 10
+                    }
+                    Grid
+                    {
+                        columns: 3
+                        spacing: 6
+
+                        Repeater
+                        {
+                            model: intNbAgents
+                            id:repeaterAgent
+                            Agent
+                            {
+                                id:kawabonga
+                                lintIndex : index
+                                lintColumnStatus: idxStatus
+                            }
+                        }
                     }
                 }
             }
         }
-        Rectangle
+        Timer
         {
-            width: root.width/3
-            height: root.height - generalSpacing - generalPadding
-            id: rctgPresent
-            color: "#262626"
-            radius: root.width/100
-            Grid
+            interval: 2000
+            repeat: true
+            triggeredOnStart: false
+
+            running: true
+            onTriggered:
             {
+                //repeaterToto.itemAt(0).reload() ="#FFFFFF";
+                repeaterToto.update();
 
-                columns: 3
-                spacing: 6
-                anchors.fill: parent
-
-                Repeater
-                {
-                    model: intNbAgents
-                    Agent {
-                        lintIndex : index
-                        lintColumnStatus: 1
-                    }
-                }
+                //repeaterToto.itemAt(2).repeaterAgent.itemAt(0).visible=false;
             }
-        }
-        Rectangle
-        {
-            width: root.width/3
-            height: root.height - generalSpacing - generalPadding
-            id: rctgInactif
-            color: "#262626"
-            radius: root.width/100
-            Grid
-            {
 
-                columns: 3
-                spacing: 6
-                anchors.fill: parent
+        }
 
-                Repeater
-                {
-                    model: intNbAgents
-                    Agent {
-                        lintIndex : index
-                        lintColumnStatus: 0
-                    }
-                }
-            }
-        }
-        Image {
-            id: addNewAgent
-            source: "+.jpg"
-        }
+
     }
-
-
-
-
-
-
 }
 

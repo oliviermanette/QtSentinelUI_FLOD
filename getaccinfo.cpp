@@ -654,7 +654,7 @@ int getAccInfo::getAgentStatus(int lintIndex)
     else
     {
         QSqlQuery sqry(mydb);
-        QString lstQuery = "SELECT Actif from sessions where Identite="+QString::number(lintIndex)+" order by Id desc limit 1";
+        QString lstQuery = "SELECT Actif from sessions where Identite="+QString::number(lintIndex)+" order by date_debut desc limit 1";
 
         if (sqry.exec(lstQuery))
         {
