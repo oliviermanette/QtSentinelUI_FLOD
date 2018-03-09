@@ -29,7 +29,6 @@ Window
     //visibility:  Window.FullScreen // <<#*********************** A decommenter
     onDetailAgentStateChanged: {
         voirdetailAgent.state=detailAgentState;
-       // console.log("STATUS onStateChange : "+voirdetailAgent.state);
     }
 
     Item
@@ -41,19 +40,7 @@ Window
             id: voirdetailAgent
             visible: false
             enabled: false
-        }/*
-        Timer
-        {
-            id : sjkdshskfh
-            interval: 2000
-            repeat: false
-            triggeredOnStart: false
-            running: true
-            onTriggered: {
-                popup.open();
-            }
-        }*/
-
+        }
 
         Popup{
             id: popup
@@ -63,7 +50,7 @@ Window
             height: 200
             Text {
                 id: infoPopUp
-                text: "toto = " + voirlistAgents.intNbAgents//repeaterToto//.color*/"toto")
+                text: "toto = " + voirlistAgents.intNbAgents
             }
             modal: true
             focus: true
@@ -72,12 +59,6 @@ Window
             Connections {
                 target: myPTMSServer
                 onReceivedMessage: {
-                    //qmlString = signalString
-                    voirlistAgents.update();
-                    voirdetailAgent.update();
-                    //voirlistAgents.repeaterToto.itemAt(0).color = "#FFFFFF"
-                    //kawabonga.lintIndex=1;
-
                     infoPopUp.text = message;
                     popup.open();
                 }

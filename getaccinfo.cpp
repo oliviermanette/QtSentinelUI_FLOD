@@ -524,7 +524,7 @@ QString getAccInfo::getDBValue(QString qstrTable, QString qstrRow, int lintIndex
     {
         //qDebug() << "Database is opened!";
         QSqlQuery sqry(mydb);
-        qDebug() <<"SELECT "+qstrRow+" FROM "+ qstrTable + " WHERE Id="+QString::number(lintIndex);
+        //qDebug() <<"SELECT "+qstrRow+" FROM "+ qstrTable + " WHERE Id="+QString::number(lintIndex);
         if (sqry.exec("SELECT "+qstrRow+" FROM "+ qstrTable + " WHERE Id="+QString::number(lintIndex)))
         {
             int lintCount=0;
@@ -610,7 +610,7 @@ QString getAccInfo::getAgentNomLst(int lintIndex, int lintStatus)
     else
     {
         QSqlQuery sqry(mydb);
-        QString lstQuery = "SELECT Nom from identites limit 1 offset "+QString::number(lintIndex);
+        QString lstQuery = "SELECT Nom from identites Order by Id limit 1 offset "+QString::number(lintIndex);
 
         if (sqry.exec(lstQuery))
         {
@@ -632,7 +632,7 @@ int getAccInfo::getAgentId(int lintIndex)
     else
     {
         QSqlQuery sqry(mydb);
-        QString lstQuery = "SELECT Id,Nom from identites limit 1 offset "+QString::number(lintIndex);
+        QString lstQuery = "SELECT Id from identites Order by Id limit 1 offset "+QString::number(lintIndex);
 
         if (sqry.exec(lstQuery))
         {
@@ -645,6 +645,29 @@ int getAccInfo::getAgentId(int lintIndex)
             qDebug() << lstQuery;
         return -9999;
     }
+}
+
+int getAccInfo::getAgentId(QString strSerialNo)
+{
+    if (!mydb.open())
+        return -9000;
+    else
+    {
+        QSqlQuery sqry(mydb);
+        QString lstQuery = "select identites.Id as Id from identites, montres where (identites.Montre_Droit=montres.Id OR identites.Montre_Gauche=montres.Id) AND montres.codeID='"+strSerialNo+"'";
+
+        if (sqry.exec(lstQuery))
+            if (sqry.first())
+                return sqry.value(0).toInt();
+        else
+            qDebug() << lstQuery;
+        return -9999;
+    }
+}
+
+QString getAccInfo::getCoreMessage(QString strSerialNo, bool lblOffset)
+{
+    return strSerialNo.split(' ')[lblOffset];
 }
 
 int getAccInfo::getAgentStatus(int lintIndex)
@@ -795,7 +818,7 @@ void getAccInfo::CaracteriseMVT()
     {
         /*
          * passe en revue le tableau de tick
-         * s'il voit un tick alors il recherche dans le tableau des valeurs de combinaison des accélération
+         * s'il voit un tick alors il recherche dans le tableau des valeurs de combinaison des accélérations
          * la valeur min ou la valeur max, ensuite fait ça une 2eme fois au prochain tick
          */
         int lintDuree = 0;

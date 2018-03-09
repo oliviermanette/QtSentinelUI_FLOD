@@ -23,8 +23,6 @@ Item
         }
     }
 
-
-
     Row
     {
         spacing: 6
@@ -36,7 +34,7 @@ Item
             id:repeaterToto
             Rectangle
             {
-                width: root.width/3- 100
+                width: root.width/3//- 100
                 height: root.height - generalSpacing - generalPadding
                 id: rctgEnregistrant
                 color: "#262626"
@@ -72,24 +70,6 @@ Item
                 }
             }
         }
-        Timer
-        {
-            interval: 2000
-            repeat: true
-            triggeredOnStart: false
-
-            running: true
-            onTriggered:
-            {
-                //repeaterToto.itemAt(0).reload() ="#FFFFFF";
-                repeaterToto.update();
-
-                //repeaterToto.itemAt(2).repeaterAgent.itemAt(0).visible=false;
-            }
-
-        }
-
-
     }
 }
 

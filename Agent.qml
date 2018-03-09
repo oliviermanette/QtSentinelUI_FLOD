@@ -43,6 +43,7 @@ Column
             }
         }
     }
+
     Text {
         id: nom
         text: qsTr("inconnu")
@@ -54,32 +55,14 @@ Column
         color: "#FCFCFC"
     }
 
-    Connections {
-        target: myPTMSServer
-        onReceivedMessage: {
-            //qmlString = signalString
-            //voirlistAgents.update();
-            //voirdetailAgent.update();
-            //voirlistAgents.repeaterToto.itemAt(0).color = "#FFFFFF"
-            //kawabonga.lintIndex=1;
-            visible = false;
-
-            //infoPopUp.text = message;
-            //popup.open();
-        }
-    }
-
-    onLintIndexChanged:
-    {
-        nom.text = accInfo.getAgentNomLst(lintIndex);
-        lintIdentifiantUser = accInfo.getAgentId(lintIndex);
+    function updateStatus() {
         lintUserStatus = accInfo.getAgentStatus(lintIndex);
         //console.log("Index : "+lintIndex+" retourne l'Id: "+ lintIdentifiantUser);
         switch (accInfo.getAgentStatus(lintIdentifiantUser))
         {
             case 1:
                 state = "Present";
-                visible = false;
+                console.log(state + lintColumnStatus);
                 if (lintColumnStatus!= 1)
                     visible = false;
                 else
@@ -87,6 +70,7 @@ Column
                 break;
             case 2:
                 state = "Enregistrant";
+                console.log(state + lintColumnStatus);
                 if (lintColumnStatus!= 2)
                     visible = false;
                 else
@@ -94,12 +78,48 @@ Column
                 break;
             default:
                 state = "Inactif";
+                console.log(state + lintColumnStatus);
                 if (lintColumnStatus!= 0)
                     visible = false;
                 else
                     visible = true;
                 break;
         }
+    }
+
+    Connections {
+        target: myPTMSServer
+        onReceivedMessage: {
+            // traite le message
+
+            // verifie que le numero de serie en question correspond bien a lintIdentifiantUser
+            // si oui verifie le contenu du message
+            if (lintIdentifiantUser===accInfo.getAgentId(accInfo.getCoreMessage(message,1)))
+            {
+                // si c est start lagent va passer de deconnecte a 'sur site' donc
+                // ==> met a jour agentStatus + popup
+                // si cest recording lagent va passer de 'sur site' a 'en poste
+                // ==> met a jour agentStatus + popup
+                // si c est okstop il faut mettre a jour les status + popup
+                // si c est arrecording il faut mettre a jour les status + popup
+                var ltxtMsg = accInfo.getCoreMessage(message,0);
+                if ((ltxtMsg==='start')||(ltxtMsg==='recording')||(ltxtMsg==='okstop')||(ltxtMsg==='arrecording'))
+                    updateStatus();
+            }
+            // si c est canistop il faut eventuellement mettre une icone
+            // et de toute facon un popup pour donner l autorisation
+
+            // si c est msgread : popup mais rien ici a faire
+        }
+    }
+
+    onLintIndexChanged:
+    {
+        nom.text = accInfo.getAgentNomLst(lintIndex);
+        lintIdentifiantUser = accInfo.getAgentId(lintIndex);
+
+        updateStatus();
+
     }
     states: [
         State {
