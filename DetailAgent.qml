@@ -1,5 +1,5 @@
 import QtQuick 2.7
-import QtQuick.Controls 2.2
+import QtQuick.Controls 2.3
 import QtCharts 2.2
 Row
 {
@@ -50,8 +50,8 @@ Row
             }
             PropertyChanges {
                 target:columnListSessions
-                visible:false
-                enabled:false
+                visible:true
+                enabled:true
             }
         },
         State {
@@ -150,15 +150,30 @@ Row
     property int lintUpdate: 0
     property int intNbSessions: 0
 
+    ListModel{
+        id: mnuDroitModel
+    }
+
     onLintUpdateChanged: // ça change au moment où on clique sur l'icone
     {
          console.log("STATUS : "+ state.toString());
          console.log("STATUS : "+conteneurGeneral.state.toString());
-        //Initialisation de l affichage
+        // Initialisation de l affichage
         var lintNbSessions = accInfo.getNombreSessions(identifiantUser);
 
         serialNoD = accInfo.getMontreSN(identifiantUser,0);//" - "
         serialNoG = accInfo.getMontreSN(identifiantUser);
+        //Ajoute la liste des montres de la BDD
+        var textMenu="";
+
+        mnuDroitModel.clear();
+        for (var i=0;i<accInfo.getNbMontres();i++)
+        {
+            textMenu = accInfo.getNextWatch();
+            console.log("Menu = "+textMenu);
+            mnuDroitModel.append({"name":textMenu});
+        }
+
         lblAge.text = accInfo.getIndividuAge(identifiantUser);
         lblPrenom.text = accInfo.getDBValue("identites","Prenom",identifiantUser);
         lblNom.text = accInfo.getDBValue("identites","Nom",identifiantUser);//"COYOTTE"
@@ -297,7 +312,8 @@ Row
                     toto.color = "#0F6FC6"
                 }
             }
-            Row{
+            Row
+            {
                 spacing: 20
                 Text
                 {
@@ -324,60 +340,145 @@ Row
                     }
                     onPressed:
                     {
-                        if (accInfo.setSessionMustStart(identifiantUser))
-                            lblbtnStatus.text = "Envoye ...";
-                        titi.color = "yellow"
+                        switch (detailAgentMain.state)
+                        {
+                            case "Inactif":
+                                //console.log("here inactive");
+                                //si la montre n'est pas branche on ne peut rien faire
+                                break;
+                            case "Present":
+                                //console.log("here present");
+                                if (accInfo.setSessionMustStart(identifiantUser))//setSessionWouldStop
+                                    lblbtnStatus.text = "Envoye ...";
+                                break;
+                            case "Enregistrant":
+                                //console.log("here enregistrant");
+                                if (accInfo.setSessionWouldStop(identifiantUser))//
+                                    lblbtnStatus.text = "Envoye ...";
+                                break;
+                        }
+                        titi.color = "yellow";
+                    }
+                    Connections {
+                        target: myPTMSServer
+                        onReceivedMessage: {
+                            //infoPopUp.text = message;
+                            //popup.open();
+                            //if (message==)
+                            //var lblbtnStatusMSG = message;
+                            //lblbtnStatusMSG
+                            //lblbtnStatus.text.toString()
+                            if (myPTMSServer.isOKStop(message,serialNoD,serialNoG ))
+                            {
+                                lblbtnStatus.text = "Demarre !";
+                                detailAgentMain.state = "Present";
+
+                            }
+                            else if (myPTMSServer.isRecording(message,serialNoD,serialNoG ))
+                            {
+                                lblbtnStatus.text = "Arrete !";
+                                detailAgentMain.state = "Enregistrant";
+
+                            }
+
+
+                        }
                     }
                     onReleased:
                     {
                         titi.color = "#0F6FC6"
                     }
                 }
-
             }
 
-
-            Row
+            Column
             {
                 spacing: extendedSpacing
 
                 Text
                 {
-                    text: "Montre Gauche"
+                    text: "Montre Gauche : "+serialNoG
                     font.bold: true
                     font.pixelSize: smallFontSize
                     color: "#FCFCFC"
                 }
-                Text
-                {
-                    text: serialNoG//"RSAJ303LQAR"
-                    font.bold: false
-                    color: "#FCFCFC"
-                    font.pixelSize: smallFontSize
+
+                Button {
+                    id: btnMnuMontreGauche
+                    text: serialNoG//"File"
+                    onClicked: {
+                        montreGaucheSelection.addItem(qsTr("item3"));
+                        //montreGaucheSelection.insertItem(0,montreGaucheSelection.addItem("toto"));
+                        montreGaucheSelection.open();
+                    }
+
+                    Menu
+                    {
+                        id: montreGaucheSelection
+                        title: serialNoG//"RSAJ303LQAR"
+
+                        Repeater {
+                            id: idInstGauche
+                                model: mnuDroitModel
+                                MenuItem {
+                                    text: model.name
+                                    onTriggered: {
+                                        accInfo.setAgentWatch(identifiantUser,model.name,true);
+                                        //serialNoD = accInfo.getMontreSN(identifiantUser,0);//" - "
+                                        serialNoG = accInfo.getMontreSN(identifiantUser);
+                                    }
+                                }
+                                //onObjectAdded: montreGaucheSelection.insertItem(index, object)
+                                //onObjectRemoved: montreGaucheSelection.removeItem(object)
+                            }
+
+                    }
                 }
                 Light
                 {
                     id:lightMontreGauche
 
-
                 }
             }
-            Row
+            Column
             {
                 spacing: extendedSpacing
                 Text
                 {
-                    text: "Montre Droite"
+                    text: "Montre Droite : "+ serialNoD
                     font.bold: true
                     font.pixelSize: smallFontSize
                     color: "#FCFCFC"
                 }
-                Text
-                {
-                    text: serialNoD
-                    font.bold: false
-                    color: "#FCFCFC"
-                    font.pixelSize: smallFontSize
+                Button {
+                    id: btnMnuMontreDroite
+                    text: serialNoD//"File"
+                    onClicked: {
+
+                        montreDroiteSelection.open();
+                    }
+
+                    Menu
+                    {
+                        id: montreDroiteSelection
+                        title: serialNoD//"RSAJ303LQAR"
+
+                        Repeater {
+                            id: idInstDroit
+                                model: mnuDroitModel
+                                MenuItem {
+                                    text: model.name
+
+                                    onTriggered: {
+                                        accInfo.setAgentWatch(identifiantUser,model.name,false);
+                                        serialNoD = accInfo.getMontreSN(identifiantUser,0);//" - "
+                                        //serialNoG = accInfo.getMontreSN(identifiantUser);
+                                    }
+                                }
+                               // onObjectAdded: montreDroiteSelection.insertItem(index, object)
+                               // onObjectRemoved: montreDroiteSelection.removeItem(object)
+                            }
+                    }
                 }
                 Light
                 {
@@ -406,7 +507,7 @@ Row
                         columnDisplay.displayInstantValues(chrtViewSmall.blWatch);
                     tpsTravail.extension = accInfo.getDureeTotaleEnregistrementEnMinutes();
 
-                    console.log("STATUS : "+detailAgentMain.status);*/
+                    console.log("STATUS : "+detailAgentMain.state);*/
                 }
             }
 
@@ -489,7 +590,6 @@ Row
                 color: "#FCFCFC"
                 font.pixelSize: fontSize
             }
-
             Repeater
             {
                 model: intNbSessions
@@ -499,6 +599,9 @@ Row
                     lintIndividu: identifiantUser
                 }
             }
+
+
+
         }
     }
 
@@ -846,6 +949,7 @@ Row
                     triggeredOnStart: true
                     running: true
                     onTriggered: {
+                        montreGaucheSelection.addItem(qsTr("item3"));
                         switch (state)
                         {
                             case "Enregistrant":

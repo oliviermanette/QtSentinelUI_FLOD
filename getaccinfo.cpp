@@ -14,6 +14,8 @@ getAccInfo::getAccInfo(QObject *parent) : QObject(parent)
     gIntDureeEnSecondeTransmission = 0; // Durée en seconde de chaque Transmission d'enregistrement
     gintNbTotalTransmission = 0; //En nombre de Transmission
     gIntNbSuccesTransmission = 0;
+    gintCurrentWatchOffset = 0;
+    gintNbTotalWatches = 0;
 
     gFltRythmeInstantMVT = 0;
     gFltRythmeMoyenMVT = 0;
@@ -32,7 +34,7 @@ void getAccInfo::autoreadFile(QString qstrMontreGauche, QString qstrMontreDroit)
 {
     int lintNb=0;
     bool lblSuccess = false;
-    QString sPath = "/home/eldecog/nodejs/upload/";
+
     QString filename = "";
     QString destFile = "sauvegarde";
     gshtNbMontres = 0;
@@ -47,10 +49,10 @@ void getAccInfo::autoreadFile(QString qstrMontreGauche, QString qstrMontreDroit)
         {
             gshtNbMontres++;
             if (lintMontre==0)
-                filename = "*" +qstrMontreDroit+".dat";
+                filename = "*" + qstrMontreDroit + ".dat";
             else
-                filename = "*" +qstrMontreGauche+".dat";
-            filemodel = new QDir(sPath,filename);
+                filename = "*" + qstrMontreGauche + ".dat";
+            filemodel = new QDir(UPLOADACCPATH,filename);
             filemodel->setFilter(QDir::Files);
 
             //qDebug() << filemodel->entryList().count();
@@ -63,7 +65,7 @@ void getAccInfo::autoreadFile(QString qstrMontreGauche, QString qstrMontreDroit)
 
             for (int lintNbFile=0;lintNbFile<getNbAxes();lintNbFile++)
             {
-                filename = sPath;
+                filename = UPLOADACCPATH;
                 filename.append(filemodel->entryList().at(lintNbFile));
                 //qDebug() << filename;
 
@@ -74,8 +76,8 @@ void getAccInfo::autoreadFile(QString qstrMontreGauche, QString qstrMontreDroit)
                     qDebug() << "Couldn't open the file";
                     return;
                 }
-                QByteArray blob =mFile.readAll();
-                if (MAXFILESIZE>=blob.count()/4)
+                QByteArray blob = mFile.readAll();
+                if (MAXFILESIZE >= blob.count()/4)
                     setNbDonnees(blob.count()/4);
                 else
                     setNbDonnees(MAXFILESIZE);
@@ -94,13 +96,11 @@ void getAccInfo::autoreadFile(QString qstrMontreGauche, QString qstrMontreDroit)
                         gfltMinValue[lintNbFile][lintMontre] = gfltAcc[lintNbFile][i][lintMontre];
                 }
 
-                //qDebug() << "The file is opened and read !";
-
                 mFile.close();
 
                 //filemodel->remove(filename);
                 // Deplace le fichier dans un repertoire de sauvegarde :
-                destFile = sPath + "PTMS_Saved/" + filemodel->entryList().at(lintNbFile);
+                destFile = UPLOADACCPATH + SAVEFOLDER + filemodel->entryList().at(lintNbFile);
                 filemodel->rename(filename,destFile);
 
                 //qDebug() << "The number of elements read is : " << getNbDonnees();
@@ -117,6 +117,186 @@ void getAccInfo::autoreadFile(QString qstrMontreGauche, QString qstrMontreDroit)
 
     if (lblSuccess)
         gIntNbSuccesTransmission++;
+}
+
+int getAccInfo::readSessionFiles()
+{
+    // Lit dans la BDD les sessions en cours :
+    // SELECT distinct codeID, date_debut from identites, sessions, montres WHERE sessions.Actif=2 AND sessions.Identite=identites.Id AND ((montres.Id = Montre_Gauche) OR (montres.Id=  Montre_Droit))
+    //unsigned int lintCount = 0;
+    if (!mydb.open())
+    {
+        return 0;
+    }
+    else
+    {
+        //qDebug() << "Database is opened!";
+        QSqlQuery sqry(mydb);
+
+        if (sqry.exec("SELECT distinct codeID, date_debut, sessions.Id from identites, sessions, montres WHERE sessions.Actif=2 AND sessions.Identite=identites.Id AND ((montres.Id = Montre_Gauche) OR (montres.Id=  Montre_Droit))"))
+        {
+            int lintCount=0;
+            while (sqry.next()) //sqry.first();
+            {
+                // Recupere les donnees a utiliser tout le temps
+                QString strSerialNo = sqry.value(0).toString();
+                QString strSessionId = sqry.value(2).toString();
+                // Maintenant il faut lire le fichier correspondant a chaque ligne dont on a le serialno et le timestamp de debut en s'inspirant de autoreadfile
+                QString destFile = sqry.value(1).toString();//.truncate(3); // 3 premiers caracteres du timestamp de la BDD Session
+                destFile.truncate(3);
+                QString filename = destFile + "*_" + strSerialNo + ".dat"; //filtre les fichiers
+                unsigned int lintNb=0;
+                unsigned luintTimestamp = 0;
+                unsigned int luintStartingFileOffset=0;
+                unsigned int luintTimeOffset = 0;
+                bool lblCheckTS = false;
+
+                filemodel = new QDir(UPLOADACCPATH,filename);
+                filemodel->setFilter(QDir::Files);
+
+                // verifie le timestamp
+                int lintI = 0;
+                while (lblCheckTS && (filemodel->entryList().count()>lintI))
+                {
+                    filename = filemodel->entryList().at(lintI);
+                    destFile = filename.split("_")[0];
+                    luintTimestamp = destFile.toInt(); // contient le timestamp du fichier, on doit verifier que c'est sup2rieur au timestamp de la BDD Session.date_debut
+                    if (luintTimestamp >= sqry.value(1).toInt())
+                    {
+                        //c'est bon
+                        luintStartingFileOffset = lintI;
+                        lblCheckTS = true;
+                        luintTimeOffset = luintTimestamp - sqry.value(1).toInt();
+                    }
+                    else
+                    {
+                        // ca ne va pas il faut regarder le fichier suivant
+                        lintI++;
+                    }
+                }
+                //S'il a regard2 tous les fichiers sans trouver :> erreur
+                if (!lblCheckTS)
+                    return 0;
+
+                if (filemodel->entryList().count()>=MAXACCFILES)
+                    setNbAxes(MAXACCFILES);
+                else
+                    setNbAxes(filemodel->entryList().count());
+
+                for (int lintNbFile=luintStartingFileOffset;lintNbFile<luintStartingFileOffset+getNbAxes();lintNbFile++)
+                {
+                    filename = UPLOADACCPATH;
+                    filename.append(filemodel->entryList().at(lintNbFile));
+
+                    QFile mFile(filename);
+
+                    if (!mFile.open(QFile::ReadOnly))
+                    {
+                        qDebug() << "Couldn't open the file";
+                        return lintCount;
+                    }
+                    QByteArray blob =mFile.readAll();
+                    if (MAXFILESIZE>=blob.count()/4)
+                        lintNb =  blob.count()/4;
+                    else
+                        lintNb = MAXFILESIZE;
+
+                    gfltAcc[lintNbFile][0][0] = *reinterpret_cast<float*>(blob.data());
+                    gfltMinValue[lintNbFile][0] = gfltAcc[lintNbFile][0][0];
+                    gfltMaxValue[lintNbFile][0] = gfltAcc[lintNbFile][0][0];
+                    for (int i=1;i<lintNb;i++)
+                    {
+                        gfltAcc[lintNbFile][i][0] = *reinterpret_cast<float*>(blob.data()+4*i);
+                        if (gfltAcc[lintNbFile][i][0]>gfltMaxValue[lintNbFile][0])
+                            gfltMaxValue[lintNbFile][0] = gfltAcc[lintNbFile][i][0];
+                        if (gfltAcc[lintNbFile][i][0]<gfltMinValue[lintNbFile][0])
+                            gfltMinValue[lintNbFile][0] = gfltAcc[lintNbFile][i][0];
+                    }
+
+                    //qDebug() << "The file is opened and read !";
+
+                    mFile.close();
+
+                    // Deplace le fichier dans un repertoire de sauvegarde :
+                    destFile = UPLOADACCPATH + SAVEFOLDER + filemodel->entryList().at(lintNbFile);
+                    filemodel->rename(filename,destFile);
+                }
+
+                delete filemodel;
+
+                // Il faut maintenant calculer
+                // le nb d actions
+                int lintNbMvt = 0, lintNbDechet = 0;
+                bool lblMontre =0;
+
+                float lfltCoeff[MAXACCFILES], lfltMaxCoef=0;
+                float lfltTotal = 0;
+                for (int lintJ=0;lintJ<getNbAxes();lintJ++)
+                {
+                    lfltCoeff[lintJ] = qAbs(getAmplitude(lintJ) * qAbs(getAmplitude(lintJ)*getMean(lintJ))*sum(&gfltAcc[lintJ][0][lblMontre],getNbDonnees(),0,getNbDonnees()));
+                    lfltTotal += lfltCoeff[lintJ];
+                    if (lfltCoeff[lintJ]>lfltMaxCoef)
+                        lfltMaxCoef = lfltCoeff[lintJ];
+                    //qDebug() << "coef("<<lintJ<<") : "<< lfltCoeff[lintJ];
+                }
+                for (int lintJ=0;lintJ<getNbAxes();lintJ++)
+                    lfltCoeff[lintJ] /= lfltMaxCoef;
+                if (lfltTotal<(1000000))
+                    return 0;
+
+                for (int lintI=0;lintI<getNbDonnees();lintI++)
+                {
+                    gfltCombinaisonAcc[lblMontre][lintI] = 0;
+                    for (int lintJ=0;lintJ<getNbAxes();lintJ++)
+                        gfltCombinaisonAcc[lblMontre][lintI] += lfltCoeff[lintJ]*getValue(lintI,lintJ,lblMontre);
+
+                }
+                gfltWindowAverage[TAILLEOFF-1]=0;
+                for (int i=TAILLEOFF;i<getNbDonnees();i++)
+                {
+                    gbolChangeDirection[i] = 0;
+                    gfltWindowAverage[i] = mean(&gfltCombinaisonAcc[lblMontre][0],getNbDonnees(),(i-TAILLEWIN+1),i);
+                    //qDebug() << "ValeurDetection : " << (gfltWindowAverage[i])<<"<- 4: "<< gfltCombinaisonAcc[i-3]<<"; 3: "<< gfltCombinaisonAcc[i-2]<<"; 2: "<< gfltCombinaisonAcc[i-1]<<"; 1: "<< gfltCombinaisonAcc[i];
+                    gfltWindowAverage[i] = gfltWindowAverage[i] - mean(&gfltCombinaisonAcc[lblMontre][0],getNbDonnees(),reinterpret_cast<int>(i-TAILLEOFF+1),reinterpret_cast<int>(i));
+
+                    if ((gfltWindowAverage[i-1]/gfltWindowAverage[i])<SEUILDETECTIONDechets)
+                        if (qAbs(gfltWindowAverage[i]-gfltWindowAverage[i-TAILLEWIN+1])>SEUILACCEG)
+                            lintNbDechet++;
+
+                    if ((gfltWindowAverage[i-1]/gfltWindowAverage[i])<SEUILDETECTION)
+                        if (qAbs(gfltWindowAverage[i]-gfltWindowAverage[i-TAILLEWIN+1])>SEUILACCEG)
+                        {
+                            gbolChangeDirection[i] = 1;
+                            lintNbMvt++;
+                        }
+                }
+
+                lintNbMvt /=2;
+                lintNbDechet/=2;
+                // gIntNbMVT[lblMontre] = lintNbMvt; // Stocker le nombre de mouvements ici
+                // gIntNbDechets[lblMontre] = lintNbDechet; // Stocker le nombre de dechets tries ici
+                QSqlQuery nquery(mydb);
+                nquery.exec("INSERT INTO enregistrements (Session, serialno_montre, time_offset, duree, nombre_actions, nb_objets) VALUES (" +
+                strSessionId+ ", " + strSerialNo + ", " + QString::number(luintTimeOffset) + ", " + QString::number(getDureeTransmission()) + ", " + QString::number(lintNbMvt) + ", " + QString::number(lintNbDechet) + ")");
+
+                // indice OCRA
+                // niveau de risque
+                // repetitivite
+                // nb_zone_verte
+                // nb_zone_jaune
+                //et tout mettre dans la table enregistrements
+                //retourner le nombre de fichiers lus avec succes
+                lintCount++;
+                qDebug() << sqry.value(0).toString();
+            }
+            return lintCount;
+        }
+        else
+        {
+            qDebug() << "mmh something got wrong while retrieving the data";
+            return 0;
+        }
+    }
 }
 
 float getAccInfo::getValueX(int lintIndex, bool lblMontre)
@@ -676,6 +856,13 @@ int getAccInfo::getAgentStatus(int lintIndex)
         return -9000;
     else
     {
+        //regarde le lastupdate des montres, si aucune des 2 n'a un lastupdate plus recent de 60'000ms alors il retourne de toute facon 0
+        QSqlQuery luQuery(mydb);
+        if (luQuery.exec("Select count(LastActif) from identites, montres where (Montre_Droit=montres.Id OR Montre_Gauche=montres.Id) AND (LastActif+60000)>(UNIX_TIMESTAMP(CURRENT_TIMESTAMP)*1000)"))
+            if (luQuery.first())
+                if (luQuery.value(0).toInt()==0)
+                    return 0;
+
         QSqlQuery sqry(mydb);
         QString lstQuery = "SELECT Actif from sessions where Identite="+QString::number(lintIndex)+" order by date_debut desc limit 1";
 
@@ -699,14 +886,14 @@ int getAccInfo::getNombreSessions(int lintIndex)
     else
     {
         QSqlQuery sqry(mydb);
-        QString lstQuery = "SELECT COUNT(*) from sessions where Identite="+QString::number(lintIndex);
-        qDebug() << lstQuery;
+        QString lstQuery = "SELECT COUNT(*) from sessions where duree>100 AND Identite="+QString::number(lintIndex);
+        //qDebug() << lstQuery;
 
         if (sqry.exec(lstQuery))
         {
             if (sqry.first())
             {
-                qDebug() << sqry.value(0).toString();
+                //qDebug() << sqry.value(0).toString();
                 return sqry.value(0).toInt();
             }
         }
@@ -723,14 +910,14 @@ QString getAccInfo::getSessiondDate(int lintIndividu, int lintIndex)
     else
     {
         QSqlQuery sqry(mydb);
-        QString lstQuery = "SELECT date_debut from sessions where Identite="+QString::number(lintIndividu)+" order by date_debut desc limit 1 offset "+QString::number(lintIndex);
-        qDebug() << lstQuery;
+        QString lstQuery = "SELECT date_debut from sessions where duree>100 AND Identite="+QString::number(lintIndividu)+" order by date_debut desc limit 1 offset "+QString::number(lintIndex);
+        //qDebug() << lstQuery;
 
         if (sqry.exec(lstQuery))
         {
             if (sqry.first())
             {
-                qDebug() << sqry.value(0).toString();
+                //qDebug() << sqry.value(0).toString();
                 QDateTime timestamp;
                 timestamp.setTime_t(sqry.value(0).toULongLong()/1000);
                 return timestamp.toString(Qt::SystemLocaleShortDate);
@@ -749,18 +936,12 @@ QString getAccInfo::getSessionDuration(int lintIndividu, int lintIndex)
     else
     {
         QSqlQuery sqry(mydb);
-        QString lstQuery = "SELECT Duree from sessions where Identite="+QString::number(lintIndividu)+" order by date_debut desc limit 1 offset "+QString::number(lintIndex);
-        qDebug() << lstQuery;
+        QString lstQuery = "SELECT Duree from sessions where duree>100 AND Identite="+QString::number(lintIndividu)+" order by date_debut desc limit 1 offset "+QString::number(lintIndex);
+        //qDebug() << lstQuery;
 
         if (sqry.exec(lstQuery))
-        {
             if (sqry.first())
-            {
-                qDebug() << sqry.value(0).toString();
-
                 return QString::number(sqry.value(0).toULongLong()/60);
-            }
-        }
         else
             qDebug() << lstQuery;
         return "-9999";
@@ -768,6 +949,66 @@ QString getAccInfo::getSessionDuration(int lintIndividu, int lintIndex)
 }
 
 bool getAccInfo::setSessionMustStart(int lintIndividu)
+{
+    if (!mydb.open())
+        return false;
+    else
+    {
+        QSqlQuery sqry(mydb);
+        QString lstQuery = "select identites.Montre_Gauche, Montre_Droit from identites where identites.Id="+QString::number(lintIndividu);
+
+        qDebug() << lstQuery;
+
+        if (sqry.exec(lstQuery))
+        {
+            if (sqry.first())
+            {
+                lstQuery = "update montres set montres.status='muststart' WHERE Id="+sqry.value(0).toString() + " OR Id=" +sqry.value(1).toString();
+                if (sqry.exec(lstQuery))
+                    return true;
+                else
+                    return false;
+            }
+            else
+                return false;
+        }
+        else
+            qDebug() << lstQuery;
+        return false;
+    }
+}
+
+bool getAccInfo::setSessionWouldStop(int lintIndividu)
+{
+    if (!mydb.open())
+        return false;
+    else
+    {
+        QSqlQuery sqry(mydb);
+        QString lstQuery = "select identites.Montre_Gauche, Montre_Droit from identites where identites.Id="+QString::number(lintIndividu);
+
+        qDebug() << lstQuery;
+
+        if (sqry.exec(lstQuery))
+        {
+            if (sqry.first())
+            {
+                lstQuery = "update montres set montres.status='wouldstop' WHERE Id="+sqry.value(0).toString()+ " OR Id=" +sqry.value(1).toString();
+                if (sqry.exec(lstQuery))
+                    return true;
+                else
+                    return false;
+            }
+            else
+                return false;
+        }
+        else
+            qDebug() << lstQuery;
+        return false;
+    }
+}
+
+bool getAccInfo::sendMessage(int lintIndividu, QString strMessage)
 {
     if (!mydb.open())
         return false;
@@ -782,7 +1023,7 @@ bool getAccInfo::setSessionMustStart(int lintIndividu)
         {
             if (sqry.first())
             {
-                lstQuery = "update montres set montres.status='muststart' WHERE Id="+sqry.value(0).toString();
+                lstQuery = "update montres set montres.status='msg="+ strMessage +"' WHERE Id="+sqry.value(0).toString();
                 if (sqry.exec(lstQuery))
                     return true;
                 else
@@ -805,6 +1046,118 @@ int getAccInfo::getNbDechets(bool lblMontre)
 int getAccInfo::getNbDechetsTotal(bool lblMontre)
 {
     return gIntNbTotalDechets[lblMontre];
+}
+
+int getAccInfo::getNbMontres()
+{
+    if (!mydb.open())
+        return 0;
+    else{
+        QSqlQuery sqry(mydb);
+        QString lstQuery = "SELECT count(codeID) AS NB FROM vaucheptms.montres where status <> 'recording'";
+        //qDebug() << lstQuery;
+
+        if (sqry.exec(lstQuery))
+            if (sqry.first()){
+                gintNbTotalWatches = sqry.value(0).toInt();
+                return gintNbTotalWatches;
+            }
+        else
+            qDebug() << lstQuery;
+        return 0;
+    }
+}
+
+QString getAccInfo::getNextWatch()
+{
+    if (!mydb.open())
+        return "-9000";
+    else
+    {
+        QSqlQuery sqry(mydb);
+        QString lstQuery = "SELECT codeID FROM vaucheptms.montres  where status <> 'recording' limit 1 offset " + QString::number(gintCurrentWatchOffset);
+        //qDebug() << lstQuery;
+
+        if (sqry.exec(lstQuery))
+        {
+            if (sqry.first())
+            {
+                if (gintCurrentWatchOffset<(gintNbTotalWatches-1))
+                    gintCurrentWatchOffset++;
+                else
+                    gintCurrentWatchOffset = 0;
+                //qDebug() << gintCurrentWatchOffset;
+                return sqry.value(0).toString();
+            }
+        }
+        else
+            qDebug() << lstQuery;
+        return "-9999";
+    }
+}
+
+bool getAccInfo::setAgentWatch(int lintIndividu, QString lstrWatchID, bool lblGauche)
+{
+    if (!mydb.open())
+        return false;
+    else
+    {
+        // recupere l'id a partir de lstrWatchID ssi le status n'est pas recording
+        QSqlQuery sqry(mydb);
+        QSqlQuery query(mydb);
+        QString lstQuery = "SELECT Id FROM vaucheptms.montres where status <> 'recording' AND codeID='"+lstrWatchID+"'";
+        if (sqry.exec(lstQuery))
+        {
+            if (sqry.first())
+            {
+                // commence par virer toutes les valeurs precedentes :
+                lstQuery= "update identites set Montre_Gauche=null where Montre_Gauche="+sqry.value(0).toString();
+                qDebug() << lstQuery;
+                query.exec(lstQuery);
+                lstQuery = "update identites set Montre_Droit=null where Montre_Droit="+sqry.value(0).toString();
+                qDebug() << lstQuery;
+                query.exec(lstQuery);
+                //Et maintenant ajoute l'ID au bon endroit
+                if (lblGauche==true)
+                    lstQuery = "update identites set Montre_Gauche="+sqry.value(0).toString() +" where Id=" + QString::number(lintIndividu);
+                else
+                    lstQuery = "update identites set Montre_Droit="+sqry.value(0).toString() +" where Id=" + QString::number(lintIndividu);
+                qDebug() << lstQuery;
+                query.exec(lstQuery);
+                return true;
+            }
+            else
+                return false;
+        }
+        else
+            return false;
+    }
+    return false;
+}
+
+QString getAccInfo::getAgentNom(QString strMessage)
+{
+
+    if (!mydb.open())
+        return "-9000";
+    else
+    {
+        QSqlQuery sqry(mydb);
+        QString lstQuery = "select Nom, Prenom from identites, montres where (Montre_Droit=montres.Id or Montre_Gauche=montres.Id) and montres.codeID='"+strMessage.split(" ")[1]+"'";
+        //qDebug() << lstQuery;
+
+        if (sqry.exec(lstQuery))
+        {
+            if (sqry.first())
+            {
+                //qDebug() << gintCurrentWatchOffset;
+                return sqry.value(1).toString() + " " + sqry.value(0).toString();
+            }
+        }
+        else
+            qDebug() << lstQuery;
+        return "-9999";
+    }
 }
 
 int getAccInfo::getDureeTransmission()

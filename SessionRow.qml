@@ -1,4 +1,4 @@
-import QtQuick 2.0
+import QtQuick 2.7
 
 Row {
     property int lintIndex: -1
@@ -22,7 +22,7 @@ Row {
 
     }
     MouseArea{
-        anchors.fill: parent
+       // anchors.fill: parent
 
     }
 

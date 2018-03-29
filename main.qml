@@ -1,6 +1,6 @@
 import QtQuick 2.7
 import QtQuick.Window 2.2
-import QtQuick.Controls 2.1
+import QtQuick.Controls 2.3
 //import aero.flod.ptms 1.0
 
 Window
@@ -30,7 +30,6 @@ Window
     onDetailAgentStateChanged: {
         voirdetailAgent.state=detailAgentState;
     }
-
     Item
     {
         id: conteneurGeneral
@@ -48,10 +47,24 @@ Window
             y: 100
             width: 200
             height: 200
-            Text {
-                id: infoPopUp
-                text: "toto = " + voirlistAgents.intNbAgents
+            Column
+            {
+                Text {
+                    id: infoPopUp
+                    text: "toto = " + voirlistAgents.intNbAgents
+                }
+                Button
+                {
+                    id:btnInfoPopup
+                    visible: false
+                    text: "OK"
+                }
             }
+
+
+
+
+
             modal: true
             focus: true
             closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutsideParent
@@ -59,18 +72,22 @@ Window
             Connections {
                 target: myPTMSServer
                 onReceivedMessage: {
-                    infoPopUp.text = message;
+                    if (myPTMSServer.isCanIStop(message))
+                    {
+                        infoPopUp.text = "Autorisez - vous la pause de :\n" +accInfo.getAgentNom(message) +" ?";
+                        btnInfoPopup.visible = true;
+                    }
+                    else
+                        infoPopUp.text = message;
                     popup.open();
                 }
             }
         }
-
         ListAgents
         {
             id: voirlistAgents
             visible: true
             enabled: true
-
         }
         states: [
             State {
@@ -101,7 +118,15 @@ Window
             }
         ]
     }
-
-
+    Timer
+    {
+        interval: 10000
+        repeat: true
+        triggeredOnStart: true
+        running: true
+        onTriggered: {
+            accInfo.readSessionFiles();
+        }
+    }
 }
 

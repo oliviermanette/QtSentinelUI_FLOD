@@ -19,6 +19,27 @@ PTMServer::PTMServer(quint16 port, bool debug, QObject *parent) :
     }
 }
 
+bool PTMServer::isOKStop(QString lstrSerialNo, QString lstrMontreG, QString lstrMontreD)
+{
+    if (lstrSerialNo.startsWith("okstop"))
+        return (lstrSerialNo.contains(lstrMontreG)||lstrSerialNo.contains(lstrMontreD));
+    else
+        return false;
+}
+
+bool PTMServer::isRecording(QString lstrSerialNo, QString lstrMontreG, QString lstrMontreD)
+{
+    if (lstrSerialNo.startsWith("recording"))
+        return (lstrSerialNo.contains(lstrMontreG)||lstrSerialNo.contains(lstrMontreD));
+    else
+        return false;
+}
+
+bool PTMServer::isCanIStop(QString lstrSerialNo)
+{
+    return (lstrSerialNo.startsWith("canistop"));
+}
+
 PTMServer::~PTMServer()
 {
     m_pWebSocketServer->close();

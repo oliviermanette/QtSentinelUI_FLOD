@@ -1,4 +1,4 @@
-import QtQuick 2.0
+import QtQuick 2.7
 
 Column
 {
@@ -62,7 +62,7 @@ Column
         {
             case 1:
                 state = "Present";
-                console.log(state + lintColumnStatus);
+                //console.log(state + lintColumnStatus);
                 if (lintColumnStatus!= 1)
                     visible = false;
                 else
@@ -70,7 +70,7 @@ Column
                 break;
             case 2:
                 state = "Enregistrant";
-                console.log(state + lintColumnStatus);
+               //console.log(state + lintColumnStatus);
                 if (lintColumnStatus!= 2)
                     visible = false;
                 else
@@ -78,7 +78,7 @@ Column
                 break;
             default:
                 state = "Inactif";
-                console.log(state + lintColumnStatus);
+                //console.log(state + lintColumnStatus);
                 if (lintColumnStatus!= 0)
                     visible = false;
                 else

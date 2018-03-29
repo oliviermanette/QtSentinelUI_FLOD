@@ -18,6 +18,7 @@ public:
     explicit getAccInfo(QObject *parent = nullptr);
 
     Q_INVOKABLE void autoreadFile(QString qstrMontreGauche, QString qstrMontreDroit);
+    Q_INVOKABLE int readSessionFiles();
     Q_INVOKABLE float getValueX(int lintIndex, bool lblMontre=0);
     Q_INVOKABLE float getValueY(int lintIndex, bool lblMontre=0);
     Q_INVOKABLE float getValueZ(int lintIndex, bool lblMontre=0);
@@ -57,9 +58,18 @@ public:
     Q_INVOKABLE QString getSessionDuration(int lintIndividu, int lintIndex);
 
     Q_INVOKABLE bool setSessionMustStart(int lintIndividu);
+    Q_INVOKABLE bool setSessionWouldStop(int lintIndividu);
+    Q_INVOKABLE bool sendMessage(int lintIndividu, QString strMessage);
 
     Q_INVOKABLE int getNbDechets(bool lblMontre=0);
     Q_INVOKABLE int getNbDechetsTotal(bool lblMontre=0);
+
+    Q_INVOKABLE int getNbMontres(); // nombre de montres dans la bdd montres (toutes sauf celles recording)
+    Q_INVOKABLE QString getNextWatch(); // a chaque appel retourne le serialno d'une montre
+    Q_INVOKABLE bool setAgentWatch(int lintIndividu, QString lstrWatchID, bool lblGauche = false); // attribue une montre a un agent
+
+    Q_INVOKABLE QString getAgentNom(QString strMessage);
+
 
 private:
     static const int MAXACCFILES = 3; // Nombre maximal de fichiers accéléromètres pouvant être utilisés
@@ -74,6 +84,8 @@ private:
     static const int NBMAXTransmissionS = 3000;
     static const int DUREETransmissionDEFAUT = 10; //durée en secondes mais on peut le modifier avec setDureeTransmission(int) et récupéré par getDureeTransmission
     static const int NBMAXMVT = 9600; // Nombre maximal de mouvements caractérisés(ACTIONS TECHNIQUES) pouvant être gardés en mémoire.
+    const QString UPLOADACCPATH = "/home/eldecog/nodejs/upload/";
+    const QString SAVEFOLDER = "PTMS_Saved/";
 
     void setNbDonnees(int lintValue); // Correspond aux nombre de float dans chaque fichier d'enregistrement
     void setNbAxes(int lintAxes, bool lblMontre=0);
@@ -93,13 +105,15 @@ private:
     int gintNombreAxes[WATCHPERAGENT];
 
     short gshtNbMontres;
+    int gintCurrentWatchOffset;
+    int gintNbTotalWatches;
 
     int gIntNbMVT[WATCHPERAGENT]; // nombre de mouvements dans le fichier d'enregistrement reçu
     int gIntNbDechets[WATCHPERAGENT]; // nombre de mouvements dans le fichier d'enregistrement reçu
 
     int gIntNbTotalMVT[WATCHPERAGENT]; // nombre Total de mvts cumulé depuis l'ouverture du programme
     int gIntNbTotalDechets[WATCHPERAGENT]; // nombre Total de mvts cumulé depuis l'ouverture du programme
-    int gTblIntNbMVT[NBMAXTransmissionS][WATCHPERAGENT]; // historique du nb de mvt à chaque fichier
+    int gTblIntNbMVT[NBMAXTransmissionS][WATCHPERAGENT]; // historique du nb de mvt à chaque fichier //HISTORIQUE d'un seul agent !! devrait etre maintenant popule par la BDD pour differents agents
 
     int gIntDureeEnSecondeTransmission; // Durée en seconde de chaque Transmission d'enregistrement
     int getDureeTransmission();
