@@ -29,7 +29,7 @@ bool PTMServer::isOKStop(QString lstrSerialNo, QString lstrMontreG, QString lstr
 
 bool PTMServer::isRecording(QString lstrSerialNo, QString lstrMontreG, QString lstrMontreD)
 {
-    if (lstrSerialNo.startsWith("recording"))
+    if (lstrSerialNo.startsWith("recording")|| lstrSerialNo.startsWith("arrecording"))
         return (lstrSerialNo.contains(lstrMontreG)||lstrSerialNo.contains(lstrMontreD));
     else
         return false;

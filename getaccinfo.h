@@ -51,6 +51,8 @@ public:
     Q_INVOKABLE QString getAgentNomLst(int lintIndex, int lintStatus=-1); // SELECT Nom from Identites limit 1 offset lintIndex
     Q_INVOKABLE int getAgentId(int lintIndex); // SELECT Id from Identites limit 1 offset lintIndex
     Q_INVOKABLE int getAgentId(QString strSerialNo);
+    Q_INVOKABLE int getAgentIdFromMessage(QString strMessage);
+
     Q_INVOKABLE QString getCoreMessage(QString strSerialNo, bool lblOffset);
     Q_INVOKABLE int getAgentStatus(int lintIndex);
     Q_INVOKABLE int getNombreSessions(int lintIndex);

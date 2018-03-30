@@ -4,7 +4,6 @@ import QtCharts 2.2
 Row
 {
     id:detailAgentMain
-
     states: [
         State {
             name: "Inactif"
@@ -156,8 +155,8 @@ Row
 
     onLintUpdateChanged: // ça change au moment où on clique sur l'icone
     {
-         console.log("STATUS : "+ state.toString());
-         console.log("STATUS : "+conteneurGeneral.state.toString());
+         //console.log("STATUS : "+ state.toString());
+        // console.log("STATUS : "+conteneurGeneral.state.toString());
         // Initialisation de l affichage
         var lintNbSessions = accInfo.getNombreSessions(identifiantUser);
 
@@ -170,9 +169,10 @@ Row
         for (var i=0;i<accInfo.getNbMontres();i++)
         {
             textMenu = accInfo.getNextWatch();
-            console.log("Menu = "+textMenu);
+            //console.log("Menu = "+textMenu);
             mnuDroitModel.append({"name":textMenu});
         }
+        //console.log(identifiantUser);
 
         lblAge.text = accInfo.getIndividuAge(identifiantUser);
         lblPrenom.text = accInfo.getDBValue("identites","Prenom",identifiantUser);
@@ -195,7 +195,7 @@ Row
                 break;
             case "Enregistrant":
 
-                accInfo.autoreadFile(serialNoG,serialNoD);
+                //accInfo.autoreadFile(serialNoG,serialNoD);
                 if (gbolTotal)
                     columnDisplay.displayTotalValues();
                 else
@@ -362,25 +362,22 @@ Row
                     Connections {
                         target: myPTMSServer
                         onReceivedMessage: {
-                            //infoPopUp.text = message;
-                            //popup.open();
-                            //if (message==)
-                            //var lblbtnStatusMSG = message;
-                            //lblbtnStatusMSG
-                            //lblbtnStatus.text.toString()
+                            // infoPopUp.text = message;
+                            // popup.open();
+                            // if (message==)
+                            // var lblbtnStatusMSG = message;
+                            // lblbtnStatusMSG
+                            // lblbtnStatus.text.toString()
                             if (myPTMSServer.isOKStop(message,serialNoD,serialNoG ))
                             {
                                 lblbtnStatus.text = "Demarre !";
                                 detailAgentMain.state = "Present";
-
                             }
                             else if (myPTMSServer.isRecording(message,serialNoD,serialNoG ))
                             {
                                 lblbtnStatus.text = "Arrete !";
                                 detailAgentMain.state = "Enregistrant";
-
                             }
-
 
                         }
                     }
@@ -953,7 +950,7 @@ Row
                         switch (state)
                         {
                             case "Enregistrant":
-                                accInfo.autoreadFile(serialNoG,serialNoD);
+                                //accInfo.autoreadFile(serialNoG,serialNoD);
                                 if (gbolTotal)
                                     columnDisplay.displayTotalValues();
                                 else

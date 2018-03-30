@@ -18,9 +18,16 @@ Row {
     onLintIndexChanged:
     {
         sessionText.text = accInfo.getSessiondDate(lintIndividu, lintIndex);
-        sessionDuree.text = accInfo.getSessionDuration(lintIndividu, lintIndex)+ " min.";
+        sessionDuree.text = accInfo.getSessionDuration(lintIndividu, lintIndex);
+    }
+
+    onVisibleChanged:
+    {
+        sessionText.text = accInfo.getSessiondDate(lintIndividu, lintIndex);
+        sessionDuree.text = accInfo.getSessionDuration(lintIndividu, lintIndex);
 
     }
+
     MouseArea{
        // anchors.fill: parent
 

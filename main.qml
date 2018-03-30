@@ -42,6 +42,7 @@ Window
         }
 
         Popup{
+            property int lintUser: 0
             id: popup
             x: 100
             y: 100
@@ -58,12 +59,15 @@ Window
                     id:btnInfoPopup
                     visible: false
                     text: "OK"
+                    onPressed:
+                    {
+                        //Envoie wouldstop a l'utilisateur concerne
+                        accInfo.setSessionWouldStop(popup.lintUser);
+                        btnInfoPopup.visible = false;
+                        popup.close();
+                    }
                 }
             }
-
-
-
-
 
             modal: true
             focus: true
@@ -75,6 +79,8 @@ Window
                     if (myPTMSServer.isCanIStop(message))
                     {
                         infoPopUp.text = "Autorisez - vous la pause de :\n" +accInfo.getAgentNom(message) +" ?";
+                        //console.log(accInfo.getAgentIdFromMessage(message));
+                        popup.lintUser = accInfo.getAgentIdFromMessage(message);
                         btnInfoPopup.visible = true;
                     }
                     else

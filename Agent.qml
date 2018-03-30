@@ -86,7 +86,16 @@ Column
                 break;
         }
     }
-
+    Timer
+    {
+        interval: 120000
+        repeat: true
+        triggeredOnStart: true
+        running: true
+        onTriggered: {
+            updateStatus();
+        }
+    }
     Connections {
         target: myPTMSServer
         onReceivedMessage: {
