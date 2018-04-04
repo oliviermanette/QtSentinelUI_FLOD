@@ -20,13 +20,14 @@ getAccInfo::getAccInfo(QObject *parent) : QObject(parent)
     gFltRythmeInstantMVT = 0;
     gFltRythmeMoyenMVT = 0;
     setDureeTransmission(DUREETransmissionDEFAUT);
+    setOcraRta(OCRADEFAULTRTA);
 
     //mydb.setDatabaseName("/home/eldecog/untitled/db/ptms.db");
     mydb.setHostName("localhost");
     mydb.setDatabaseName("vaucheptms");
     mydb.setUserName("ptms");
     mydb.setPassword("Iluv2w0rk");
-    bool ok = mydb.open();
+    mydb.open();
     //mydb.removeDatabase("ptms.db");
 }
 
@@ -145,6 +146,7 @@ int getAccInfo::readSessionFiles()
                 // Recupere les donnees a utiliser tout le temps
                 QString strSerialNo = sqry.value(0).toString();
                 QString strSessionId = sqry.value(2).toString();
+                int intSessionId = sqry.value(2).toInt();
                 // Maintenant il faut lire le fichier correspondant a chaque ligne dont on a le serialno et le timestamp de debut en s'inspirant de autoreadfile
                 QString destFile = sqry.value(1).toString();//.truncate(3); // 3 premiers caracteres du timestamp de la BDD Session
                 destFile.truncate(3);
@@ -199,11 +201,11 @@ int getAccInfo::readSessionFiles()
                 lshtAcc = 0;
 
 
-                for (int lintNbFile=luintStartingFileOffset;lintNbFile<luintStartingFileOffset+getNbAxes();lintNbFile++)
+                for (unsigned int lintNbFile=luintStartingFileOffset;lintNbFile<luintStartingFileOffset+getNbAxes();lintNbFile++)
                 {
                     filename = UPLOADACCPATH;
                     filename.append(filemodel->entryList().at(lintNbFile));
-                    //qDebug() << "Ouverture du fichier : " + filemodel->entryList().at(lintNbFile);
+                    // qDebug() << " Ouverture du fichier : " + filemodel->entryList().at(lintNbFile);
 
                     QFile mFile(filename);
 
@@ -220,11 +222,11 @@ int getAccInfo::readSessionFiles()
 
                     setNbDonnees(lintNb);
 
-                    qDebug() << "Nombre d'elements dans le vecteur : "+ QString::number(lintNb);
+                    //qDebug() << "Nombre d'elements dans le vecteur : "+ QString::number(lintNb);
                     gfltAcc[lshtAcc][0][0] = *reinterpret_cast<float*>(blob.data());
                     gfltMinValue[lshtAcc][0] = gfltAcc[lshtAcc][0][0];
                     gfltMaxValue[lshtAcc][0] = gfltAcc[lshtAcc][0][0];
-                    for (int i=1;i<lintNb;i++)
+                    for (unsigned int i=1;i<lintNb;i++)
                     {
                         gfltAcc[lshtAcc][i][0] = *reinterpret_cast<float*>(blob.data()+4*i);
                         if (gfltAcc[lshtAcc][i][0]>gfltMaxValue[lshtAcc][0])
@@ -248,27 +250,27 @@ int getAccInfo::readSessionFiles()
                 //qDebug() << "// Il faut maintenant calculer le nb d actions";
                 int lintNbMvt = 0, lintNbDechet = 0;
 
-                float lfltCoeff[MAXACCFILES], lfltTemp=0, lfltMaxCoef=0;
+                float lfltCoeff[MAXACCFILES], lfltMaxCoef=0;
                 float lfltTotal = 0;
                 for (int lintJ=0;lintJ<getNbAxes();lintJ++)
                 {
                     lfltCoeff[lintJ] = qAbs(getAmplitude(lintJ) * qAbs(getAmplitude(lintJ)*getMean(lintJ))*sum(&gfltAcc[lintJ][0][0],lintNb,0,lintNb));
-                    qDebug() << "getAmplitude : " + QString::number(qAbs(getAmplitude(lintJ)));
+                    //qDebug() << "getAmplitude : " + QString::number(qAbs(getAmplitude(lintJ)));
                     //qDebug() << "ABS : " + QString::number(qAbs(getAmplitude(lintJ));
-                    qDebug() << "getMean : " + QString::number(getMean(lintJ));
-                    qDebug() << "sum : " + QString::number(sum(&gfltAcc[lintJ][0][0],lintNb,0,lintNb));
+                    //qDebug() << "getMean : " + QString::number(getMean(lintJ));
+                    //qDebug() << "sum : " + QString::number(sum(&gfltAcc[lintJ][0][0],lintNb,0,lintNb));
 
                     lfltTotal += lfltCoeff[lintJ];
                     if (lfltCoeff[lintJ]>lfltMaxCoef)
                         lfltMaxCoef = lfltCoeff[lintJ];
-                    qDebug() << "coef("<<lintJ<<") : "<< lfltCoeff[lintJ];
+                    //qDebug() << "coef("<<lintJ<<") : "<< lfltCoeff[lintJ];
                 }
                 for (int lintJ=0;lintJ<getNbAxes();lintJ++)
                     lfltCoeff[lintJ] /= lfltMaxCoef;
                 if (lfltTotal<(1000000))
                     return 0;
 
-                for (int lintI=0;lintI<lintNb;lintI++)
+                for (unsigned int lintI=0;lintI<lintNb;lintI++)
                 {
                     gfltCombinaisonAcc[0][lintI] = 0;
                     for (int lintJ=0;lintJ<getNbAxes();lintJ++)
@@ -297,22 +299,63 @@ int getAccInfo::readSessionFiles()
                 lintNbMvt /=2;
                 lintNbDechet/=2;
                 qDebug() << "Le nombre de mouvements : " + QString::number(lintNbMvt);
-                qDebug() << "Le nombre de dechets : " + QString::number(lintNbDechet);
+                //qDebug() << "Le nombre de dechets : " + QString::number(lintNbDechet);
 
-                QSqlQuery nquery(mydb);
-                QString lstQuery = "INSERT INTO enregistrements (Session, serialno_montre, time_offset, duree, nb_actions, nb_objets) VALUES (" +
-                        strSessionId+ ", '" + strSerialNo + "', " + QString::number(luintTimeOffset) + ", " + QString::number(getDureeTransmission()) + ", " + QString::number(lintNbMvt) + ", " + QString::number(lintNbDechet) + ")";
 
-                //qDebug() << lstQuery;
-                nquery.exec(lstQuery);
               //  strSessionId+ ", " + strSerialNo + ", " + QString::number(luintTimeOffset) + ", " + QString::number(getDureeTransmission()) + ", " + QString::number(lintNbMvt) + ", " + QString::number(lintNbDechet) + ")");
 
                 // indice OCRA
-                // niveau de risque
-                // repetitivite
+                    // calcul de l4indice ATA (actual Technical Actions : represente le nombre d'actions techniques que l'on effectue pendant toute la duree du poste.
+                    // Calcul du RTA : k  *  F * P * R * Fa * Rc * D
+                        // k = 30
+                        // F = 0,7
+                        // P = 0,8 facteur de posture (etendu des mouvements)
+                        // R = 0.9
+                        // Fa = 0,8
+                        // f : somme de la freq des mouvements par minute de chaque bras
+                    // calcul final : ATA/10
+                float lfltOCRAindex =  getOCRA4DBSession(lintNbMvt);//lintNbMvt*6.0/12.0;
+                //qDebug() << lfltOCRAindex;
+                /*
+                 * Risque OCRA
+                    Conclusions
+                    Vert    :   < 2,2       Pas de risque
+                    Jaune   :   2,3 - 3,5   Risque faible, moins du double que pour la case verte
+                    Rouge   :   > 3,5       Risque plus de deux fois plus grand que pour la case verte
+
+                Sur base d'études récentes, la relation entre l'indice OCRA et la prévalence de TMS
+                a été estimée par la formule de régression suivante:
+                Prévalence = 2,39  x OCRA, l'erreur standard sur le coefficient 2,39 est égal à ± 0,14
+                Les valeurs limites des zones de risque correspondent à 95% de la population non
+                exposée et donne la zone verte. Pour la zone rouge, les limites ont été choisies de
+                telle sorte que 50% des personnes présentent le double de plaintes que la populati-
+                on non exposée */
+
+                // niveau de risque : comprend en plus d'autres parametres
+                float lfltRisque = getDbNiveauDeRisque(intSessionId);
+
+                // nb_zone_rouge
                 // nb_zone_verte
                 // nb_zone_jaune
-                //et tout mettre dans la table enregistrements
+
+                // vibrations
+                // nb charges lourdes
+
+                //et tout mettre dans la table enregistrements                        
+                QSqlQuery nquery(mydb);
+                QString lstQuery = "INSERT INTO enregistrements (Session, serialno_montre, time_offset, duree, nb_actions, nb_objets, indice_OCRA, niveau_risque) VALUES (" +
+                        strSessionId+ ", '" +
+                        strSerialNo + "', " +
+                        QString::number(luintTimeOffset) + ", " +
+                        QString::number(getDureeTransmission()) + ", " +
+                        QString::number(lintNbMvt) + ", " +
+                        QString::number(lintNbDechet)+ ", " +
+                        QString::number(lfltOCRAindex, 'f', 2)+ ", " +
+                        QString::number(lfltRisque, 'f', 2)
+                        + ")";
+
+                //qDebug() << lstQuery;
+                nquery.exec(lstQuery);
                 //retourner le nombre de fichiers lus avec succes
                 lintCount++;
                 //qDebug() << sqry.value(0).toString();
@@ -379,7 +422,6 @@ int getAccInfo::getNbMouvements(bool lblMontre)
             lfltMaxCoef = lfltCoeff[lintJ];
         //qDebug() << "coef("<<lintJ<<") : "<< lfltCoeff[lintJ];
     }
-
     //qDebug() << "Total = "<< lfltMaxCoef;
     //qDebug() << "Max = "<< lfltTotal;
     for (int lintJ=0;lintJ<getNbAxes();lintJ++)
@@ -660,6 +702,148 @@ int getAccInfo::minPos(float *lfltTableau, int lintTailleTableau, int lintDebut,
     return lintSortie;
 }
 
+float getAccInfo::getOCRA4DBSession(int lintNbAT)
+{
+    return lintNbAT*(60.0/getDureeTransmission())/getOCRA_RTA();
+}
+
+float getAccInfo::getOCRA_RTA()
+{
+    return gfltOcraRTE;
+}
+
+void getAccInfo::setOcraRta(float lfltOCRA_RTA)
+{
+    gfltOcraRTE = lfltOCRA_RTA;
+}
+
+float getAccInfo::getDbNiveauDeRisque(int lintSession)
+{
+    //niveau de risaue
+    //duree de travail :
+    //la duree chaude 2h
+    float lfltMaxTiming = 120.0;
+    int lintDuree = getCurrentSessionDuration(lintSession);
+    int lintIndividu = getAgentIdFromSession(lintSession);
+    float lfltRisqueTampon = (lintDuree/60.0)/(lfltMaxTiming); //TODO au bout de combien de temps ca commence a etre chaud? disons 120 minutes pour le moment
+    //qDebug() << "risque liee au Temps : " + QString::number(lfltRisqueTampon);
+    //age
+    int lintAge  = getIndividuAge(lintIndividu);
+    lfltRisqueTampon += (lintAge-16)/(54-16); //TODO Age maxi et age mini correspondant au risque
+    //qDebug() << "risque liee a l'Age : " + QString::number(lfltRisqueTampon);
+    // nombre de mouvement total (AT)
+    int lintNbTotalMVT = getSessionTotalMVT(lintSession);
+
+
+
+    lfltRisqueTampon +=lintNbTotalMVT/(getOCRA_RTA()*lfltMaxTiming); // au dela de combien d'actions technique c est chaud ? je prend le nombre d'action technique RTA et le multiplie par le temps ou c'est chaud
+    //qDebug() << "risque liee au total de MVT : " + QString::number(lfltRisqueTampon);
+    //le rythme moyen
+    float lfltRythme = getSessionRythmeMoyenMVT(lintSession);
+    //qDebug() << "sortie de  getSessionRythmeMoyenMVT: " + QString::number(lfltRythme);
+    lfltRisqueTampon += lfltRythme/60.0;
+    //qDebug() << "risque liee au Rythme : " + QString::number(lfltRisqueTampon);
+
+    // le rythme cardiaque
+    // TODO
+
+    // le genre
+    // TODO
+
+    // le niveau des vibrations
+    // TODO
+
+    // le nombre d'amplitudes rouges et jaune
+    // TODO
+
+    // le nombre de charges lourdes
+    // TODO
+
+    lfltRisqueTampon =  100*lfltRisqueTampon/5 ;
+    qDebug() << "risque normalise : " + QString::number(lfltRisqueTampon);
+    return lfltRisqueTampon;
+}
+
+int getAccInfo::getCurrentSessionDuration(int lintSession)
+{
+    if (!mydb.open())
+        return -1;
+    else
+    {
+        QSqlQuery sqry(mydb);
+        QString lstQuery = "SELECT max(time_offset) FROM vaucheptms.enregistrements where Session="+QString::number(lintSession);
+        //qDebug() << lstQuery;
+
+        if (sqry.exec(lstQuery))
+        {
+            if (sqry.first())
+            {
+                return sqry.value(0).toInt()/1000;//pour l'avoir en secondes
+            }
+        }
+        else
+            qDebug() << lstQuery;
+        return -1;
+    }
+}
+
+int getAccInfo::getAgentIdFromSession(int lintSession)
+{
+    //SELECT Identite FROM vaucheptms.sessions where Id=82;
+    if (!mydb.open())
+        return -1;
+    else
+    {
+        QSqlQuery sqry(mydb);
+        QString lstQuery = "SELECT Identite FROM vaucheptms.sessions where Id="+QString::number(lintSession);
+        //qDebug() << lstQuery;
+
+        if (sqry.exec(lstQuery))
+        {
+            if (sqry.first())
+            {
+                return sqry.value(0).toInt();//pour l'avoir en secondes
+            }
+        }
+        else
+            qDebug() << lstQuery;
+        return -1;
+    }
+}
+
+int getAccInfo::getSessionTotalMVT(int lintSession)
+{
+    //SELECT sum(nb_actions) FROM vaucheptms.enregistrements where Session
+    if (!mydb.open())
+        return -1;
+    else
+    {
+        QSqlQuery sqry(mydb);
+        QString lstQuery = "SELECT sum(nb_actions) FROM vaucheptms.enregistrements where Session="+QString::number(lintSession);
+        //qDebug() << lstQuery;
+
+        if (sqry.exec(lstQuery))
+        {
+            if (sqry.first())
+            {
+                return sqry.value(0).toInt();//pour l'avoir en secondes
+            }
+        }
+        else
+            qDebug() << lstQuery;
+        return -1;
+    }
+}
+
+float getAccInfo::getSessionRythmeMoyenMVT(int lintSession)
+{
+    float lfltRetour = 0;//;
+    float lfltSessionDuration = getCurrentSessionDuration(lintSession);
+    if (lfltSessionDuration>0)
+         lfltRetour = getSessionTotalMVT(lintSession)/(lfltSessionDuration/60.0);
+    return lfltRetour;
+}
+
 void getAccInfo::setDureeTransmission(int lintNbSecondes)
 {
     gIntDureeEnSecondeTransmission = lintNbSecondes;
@@ -870,9 +1054,10 @@ int getAccInfo::getAgentId(QString strSerialNo)
         QSqlQuery sqry(mydb);
         QString lstQuery = "select identites.Id as Id from identites, montres where (identites.Montre_Droit=montres.Id OR identites.Montre_Gauche=montres.Id) AND montres.codeID='"+strSerialNo+"'";
         //qDebug() << lstQuery;
-        if (sqry.exec(lstQuery))
+        if (sqry.exec(lstQuery)){
             if (sqry.first())
                 return sqry.value(0).toInt();
+        }
         else
             qDebug() << lstQuery;
         return -9999;
@@ -888,9 +1073,10 @@ int getAccInfo::getAgentIdFromMessage(QString strMessage)
         QSqlQuery sqry(mydb);
         QString lstQuery = "select identites.Id as Id from identites, montres where (identites.Montre_Droit=montres.Id OR identites.Montre_Gauche=montres.Id) AND montres.codeID='"+strMessage.split(" ")[1]+"'";
         //qDebug() << lstQuery;
-        if (sqry.exec(lstQuery))
+        if (sqry.exec(lstQuery)){
             if (sqry.first())
                 return sqry.value(0).toInt();
+        }
         else
             qDebug() << lstQuery;
         return -9999;
@@ -911,13 +1097,14 @@ int getAccInfo::getAgentStatus(int lintIndex)
         //regarde le lastupdate des montres, si aucune des 2 n'a un lastupdate plus recent de 60'000ms alors il retourne de toute facon 0
         QSqlQuery luQuery(mydb);
         //QString lstQuery
-        if (luQuery.exec("Select count(LastActif) from identites, montres where (Montre_Droit=montres.Id OR Montre_Gauche=montres.Id) AND (LastActif+60000)>(UNIX_TIMESTAMP(CURRENT_TIMESTAMP)*1000) AND identites.Id="+QString::number(lintIndex)))
-            if (luQuery.first())
+        if (luQuery.exec("Select count(LastActif) from identites, montres where (Montre_Droit=montres.Id OR Montre_Gauche=montres.Id) AND (LastActif+60000)>(UNIX_TIMESTAMP(CURRENT_TIMESTAMP)*1000) AND identites.Id="+QString::number(lintIndex))){
+            if (luQuery.first()){
                 if (luQuery.value(0).toInt()==0)
                     return 0;
                 else
                     qDebug() << "Agent #"+QString::number( lintIndex)+" passed count timing !!";
-
+            }
+        }
         QSqlQuery sqry(mydb);
         QString lstQuery = "SELECT Actif from sessions where Identite="+QString::number(lintIndex)+" order by date_debut desc limit 1";
         //qDebug() << lstQuery;
@@ -994,7 +1181,7 @@ QString getAccInfo::getSessionDuration(int lintIndividu, int lintIndex)
         QString lstQuery = "SELECT Duree from sessions where duree>100 AND Identite="+QString::number(lintIndividu)+" order by date_debut desc limit 1 offset "+QString::number(lintIndex);
         //qDebug() << lstQuery;
 
-        if (sqry.exec(lstQuery))
+        if (sqry.exec(lstQuery)){
             if (sqry.first()){
                 if (sqry.value(0).toULongLong()<60000)
                     return QString::number(sqry.value(0).toULongLong()/1000)+"sec.";
@@ -1003,6 +1190,7 @@ QString getAccInfo::getSessionDuration(int lintIndividu, int lintIndex)
                 else
                     return QString::number(sqry.value(0).toULongLong()/3600000)+"h...";;
             }
+        }
         else
             qDebug() << lstQuery;
         return "-9999";
@@ -1118,11 +1306,12 @@ int getAccInfo::getNbMontres()
         QString lstQuery = "SELECT count(codeID) AS NB FROM vaucheptms.montres where status <> 'recording'";
         //qDebug() << lstQuery;
 
-        if (sqry.exec(lstQuery))
+        if (sqry.exec(lstQuery)){
             if (sqry.first()){
                 gintNbTotalWatches = sqry.value(0).toInt();
                 return gintNbTotalWatches;
             }
+        }
         else
             qDebug() << lstQuery;
         return 0;

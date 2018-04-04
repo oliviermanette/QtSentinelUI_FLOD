@@ -50,8 +50,8 @@ public:
     Q_INVOKABLE int getNombreAgents(); // SELECT  count(Id) from Identites
     Q_INVOKABLE QString getAgentNomLst(int lintIndex, int lintStatus=-1); // SELECT Nom from Identites limit 1 offset lintIndex
     Q_INVOKABLE int getAgentId(int lintIndex); // SELECT Id from Identites limit 1 offset lintIndex
-    Q_INVOKABLE int getAgentId(QString strSerialNo);
-    Q_INVOKABLE int getAgentIdFromMessage(QString strMessage);
+    Q_INVOKABLE int getAgentId(QString strSerialNo);// a partir de sa montre
+    Q_INVOKABLE int getAgentIdFromMessage(QString strMessage); //dans un message
 
     Q_INVOKABLE QString getCoreMessage(QString strSerialNo, bool lblOffset);
     Q_INVOKABLE int getAgentStatus(int lintIndex);
@@ -88,6 +88,7 @@ private:
     static const int NBMAXMVT = 9600; // Nombre maximal de mouvements caractérisés(ACTIONS TECHNIQUES) pouvant être gardés en mémoire.
     const QString UPLOADACCPATH = "/home/eldecog/nodejs/upload/";
     const QString SAVEFOLDER = "PTMS_Saved/";
+    static constexpr float OCRADEFAULTRTA = 12;
 
     void setNbDonnees(int lintValue); // Correspond aux nombre de float dans chaque fichier d'enregistrement
     void setNbAxes(int lintAxes, bool lblMontre=0);
@@ -99,9 +100,19 @@ private:
     float max(float* lfltTableau, int lintTailleTableau, int lintDebut, int lintFin);
     int maxPos(float* lfltTableau, int lintTailleTableau, int lintDebut, int lintFin);
     int minPos(float* lfltTableau, int lintTailleTableau, int lintDebut, int lintFin);
+    float getOCRA4DBSession(int lintNbAT);
+    float getOCRA_RTA();
+    void setOcraRta(float lfltOCRA_RTA);
+    float getDbNiveauDeRisque(int lintSession);
+    int getCurrentSessionDuration(int lintSession); // en secondes
+    int getAgentIdFromSession(int lintSession);
+    int getSessionTotalMVT(int lintSession);
+    float getSessionRythmeMoyenMVT(int lintSession);
 
     //QSqlDatabase mydb = QSqlDatabase::addDatabase("QSQLITE");
     QSqlDatabase mydb = QSqlDatabase::addDatabase("QMYSQL");
+
+    float gfltOcraRTE;
 
     int gintNombreDonnees;
     int gintNombreAxes[WATCHPERAGENT];
