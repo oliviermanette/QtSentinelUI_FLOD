@@ -52,6 +52,16 @@ Row
                 visible:true
                 enabled:true
             }
+            PropertyChanges {
+                target:columnDetailSessions
+                visible:true
+                enabled:true
+            }
+            PropertyChanges {
+                target: btnTotal
+                visible:false
+                enabled: false
+            }
         },
         State {
             name: "Present"
@@ -82,6 +92,11 @@ Row
                 enabled:true
             }
             PropertyChanges {
+                target:columnDetailSessions
+                visible:true
+                enabled:true
+            }
+            PropertyChanges {
                 target:affichageNombreExtension
                 visible:false
                 enabled:false
@@ -96,6 +111,11 @@ Row
                 text:"Connecté"
                 font.bold: true
                 color: "green"
+            }
+            PropertyChanges {
+                target: btnTotal
+                visible:false
+                enabled: false
             }
         },
         State {
@@ -141,6 +161,16 @@ Row
                 visible:false
                 enabled:false
             }
+            PropertyChanges {
+                target:columnDetailSessions
+                visible:false
+                enabled:false
+            }
+            PropertyChanges {
+                target: btnTotal
+                visible:true
+                enabled: true
+            }
         }
     ]
 
@@ -159,6 +189,7 @@ Row
         // console.log("STATUS : "+conteneurGeneral.state.toString());
         // Initialisation de l affichage
         var lintNbSessions = accInfo.getNombreSessions(identifiantUser);
+        columnDetailSessions.visible = false;
 
         serialNoD = accInfo.getMontreSN(identifiantUser,0);//" - "
         serialNoG = accInfo.getMontreSN(identifiantUser);
@@ -211,20 +242,50 @@ Row
         height: root.height - generalSpacing - generalPadding
         id: columIdentite
         color: "#262626"
-        radius: root.width/100
+        radius: root.width/150
         Column
         {
             padding: generalPadding
             spacing : extendedSpacing
-            Text
-            {
-                id: titleID
-                text: "Identité"
-                font.bold: true
-                font.pixelSize: bigFontSize
-                horizontalAlignment: Text.AlignHCenter
-                color: "#FCFCFC"
+            Row{
+                Text
+                {
+                    id: titleID
+                    text: "Identité"
+                    font.bold: true
+                    font.pixelSize: bigFontSize
+                    horizontalAlignment: Text.AlignHCenter
+                    color: "#FCFCFC"
+                }
+                Rectangle{
+                    height: 14
+                    width: 20
+                    color: "#262626"
+                }
+                Button
+                {
+                    id  : btnBackToList
+                    text: "< Retour "
+
+                    background: Rectangle {
+                        color:"#DCECF2"
+                        id:btnBack
+                        radius: 3
+                    }
+                    onPressed:
+                    {
+                        btnBack.color = "yellow"
+                    }
+                    onReleased:
+                    {
+                        btnBack.color = "#DCECF2"
+                        conteneurGeneral.state = "ListAgents";
+                    }
+                }
             }
+
+
+
             Image
             {
                 source: "Image1.jpg"
@@ -299,7 +360,7 @@ Row
                     font.pixelSize: smallFontSize
                 }
                 background: Rectangle {
-                    color:"#0F6FC6"
+                    color:"#DCECF2"
                     id:toto
                     radius: 3
                 }
@@ -309,7 +370,7 @@ Row
                 }
                 onReleased:
                 {
-                    toto.color = "#0F6FC6"
+                    toto.color = "#DCECF2"
                 }
             }
             Row
@@ -334,7 +395,7 @@ Row
                         font.pixelSize: smallFontSize
                     }
                     background: Rectangle {
-                        color:"#0F6FC6"
+                        color:"#DCECF2"
                         id:titi
                         radius: 3
                     }
@@ -383,7 +444,7 @@ Row
                     }
                     onReleased:
                     {
-                        titi.color = "#0F6FC6"
+                        titi.color = "#DCECF2"
                     }
                 }
             }
@@ -399,42 +460,55 @@ Row
                     font.pixelSize: smallFontSize
                     color: "#FCFCFC"
                 }
+                Row{
+                    spacing: 40
+                    Button {
+                        id: btnMnuMontreGauche
+                        text: serialNoG
+                        background: Rectangle {
+                            color:"#DCECF2"
+                            radius: 3
+                        }
+                        onPressed:
+                        {
+                            toto.color = "yellow"
+                        }
+                        onReleased:
+                        {
+                            toto.color = "#DCECF2"
+                        }
+                        onClicked: {
+                            montreGaucheSelection.addItem(qsTr("item3"));
+                            //montreGaucheSelection.insertItem(0,montreGaucheSelection.addItem("toto"));
+                            montreGaucheSelection.open();
+                        }
 
-                Button {
-                    id: btnMnuMontreGauche
-                    text: serialNoG//"File"
-                    onClicked: {
-                        montreGaucheSelection.addItem(qsTr("item3"));
-                        //montreGaucheSelection.insertItem(0,montreGaucheSelection.addItem("toto"));
-                        montreGaucheSelection.open();
-                    }
+                        Menu
+                        {
+                            id: montreGaucheSelection
+                            title: serialNoG//"RSAJ303LQAR"
 
-                    Menu
-                    {
-                        id: montreGaucheSelection
-                        title: serialNoG//"RSAJ303LQAR"
-
-                        Repeater {
-                            id: idInstGauche
-                                model: mnuDroitModel
-                                MenuItem {
-                                    text: model.name
-                                    onTriggered: {
-                                        accInfo.setAgentWatch(identifiantUser,model.name,true);
-                                        //serialNoD = accInfo.getMontreSN(identifiantUser,0);//" - "
-                                        serialNoG = accInfo.getMontreSN(identifiantUser);
+                            Repeater {
+                                id: idInstGauche
+                                    model: mnuDroitModel
+                                    MenuItem {
+                                        text: model.name
+                                        onTriggered: {
+                                            accInfo.setAgentWatch(identifiantUser,model.name,true);
+                                            //serialNoD = accInfo.getMontreSN(identifiantUser,0);//" - "
+                                            serialNoG = accInfo.getMontreSN(identifiantUser);
+                                        }
                                     }
+                                    //onObjectAdded: montreGaucheSelection.insertItem(index, object)
+                                    //onObjectRemoved: montreGaucheSelection.removeItem(object)
                                 }
-                                //onObjectAdded: montreGaucheSelection.insertItem(index, object)
-                                //onObjectRemoved: montreGaucheSelection.removeItem(object)
-                            }
+                        }
+                    }
+                    Light
+                    {
+                        id:lightMontreGauche
 
                     }
-                }
-                Light
-                {
-                    id:lightMontreGauche
-
                 }
             }
             Column
@@ -447,41 +521,55 @@ Row
                     font.pixelSize: smallFontSize
                     color: "#FCFCFC"
                 }
-                Button {
-                    id: btnMnuMontreDroite
-                    text: serialNoD//"File"
-                    onClicked: {
+                Row{
+                    spacing: 40
+                    Button {
+                        id: btnMnuMontreDroite
+                        text: serialNoD
+                        background: Rectangle {
+                            color:"#DCECF2"
+                            radius: 3
+                        }
+                        onPressed:
+                        {
+                            toto.color = "yellow"
+                        }
+                        onReleased:
+                        {
+                            toto.color = "#DCECF2"
+                        }
+                        onClicked: {
+                            montreDroiteSelection.open();
+                        }
 
-                        montreDroiteSelection.open();
-                    }
+                        Menu
+                        {
+                            id: montreDroiteSelection
+                            title: serialNoD//"RSAJ303LQAR"
 
-                    Menu
-                    {
-                        id: montreDroiteSelection
-                        title: serialNoD//"RSAJ303LQAR"
+                            Repeater {
+                                id: idInstDroit
+                                    model: mnuDroitModel
+                                    MenuItem {
+                                        text: model.name
 
-                        Repeater {
-                            id: idInstDroit
-                                model: mnuDroitModel
-                                MenuItem {
-                                    text: model.name
-
-                                    onTriggered: {
-                                        accInfo.setAgentWatch(identifiantUser,model.name,false);
-                                        serialNoD = accInfo.getMontreSN(identifiantUser,0);//" - "
-                                        //serialNoG = accInfo.getMontreSN(identifiantUser);
+                                        onTriggered: {
+                                            accInfo.setAgentWatch(identifiantUser,model.name,false);
+                                            serialNoD = accInfo.getMontreSN(identifiantUser,0);//" - "
+                                            //serialNoG = accInfo.getMontreSN(identifiantUser);
+                                        }
                                     }
+                                   // onObjectAdded: montreDroiteSelection.insertItem(index, object)
+                                   // onObjectRemoved: montreDroiteSelection.removeItem(object)
                                 }
-                               // onObjectAdded: montreDroiteSelection.insertItem(index, object)
-                               // onObjectRemoved: montreDroiteSelection.removeItem(object)
-                            }
+                        }
+                    }
+                    Light
+                    {
+                        id:lightMontreDroit
                     }
                 }
-                Light
-                {
-                    id:lightMontreDroit
 
-                }
             }
             Timer
             {
@@ -511,22 +599,22 @@ Row
             Button
             {
                id       : btnTotal
-               text     : "Total"
+               text     : "Moyenne"
                onClicked:
                    if (gbolTotal)
                    {
                        gbolTotal = false;
-                       btnTotal.text = "Total";
+                       btnTotal.text = "Moyenne";
                        columnDisplay.displayInstantValues(chrtViewSmall.blWatch);
                    }
                    else
                    {
                        gbolTotal = true;
-                       btnTotal.text = "Instant";
+                       btnTotal.text = "Detail";
                        columnDisplay.displayTotalValues();
                    }
                background: Rectangle {
-                   color:"#0F6FC6"
+                   color:"#DCECF2"
                    id:btnBackTotal
                    radius: 3
                }
@@ -536,29 +624,10 @@ Row
                }
                onReleased:
                {
-                   btnBackTotal.color = "#0F6FC6"
+                   btnBackTotal.color = "#DCECF2"
                }
             }
-            Button
-            {
-                id  : btnBackToList
-                text: "list"
 
-                background: Rectangle {
-                    color:"#0F6FC6"
-                    id:btnBack
-                    radius: 3
-                }
-                onPressed:
-                {
-                    btnBack.color = "yellow"
-                }
-                onReleased:
-                {
-                    btnBack.color = "#0F6FC6"
-                    conteneurGeneral.state = "ListAgents";
-                }
-            }
             Button
             {
                text: "Quitter"
@@ -570,22 +639,23 @@ Row
 
     Rectangle
     {
-        width: root.width/2.9
+        width: 264
         height: root.height  - generalSpacing - generalPadding
         id:columnListSessions
         color: "#262626"
-        radius: 15
+        radius: root.width/150
 
         Column
         {
-            padding: 40//generalPadding
+            padding: 10//generalPadding
             spacing : 10//extendedSpacing
 
             Text {
                 id: txtTitleSessionList
                 text: qsTr("Liste des sessions :")
                 color: "#FCFCFC"
-                font.pixelSize: fontSize
+                font.pixelSize: bigFontSize
+                font.bold: true
             }
             Repeater
             {
@@ -596,8 +666,375 @@ Row
                     lintIndividu: identifiantUser
                 }
             }
+        }
+    }
+    Rectangle{
+        id: columnDetailSessions
+        width: root.width/2.9
+        height: root.height - generalSpacing - generalPadding
+        color: "#262626"
+        radius: root.width/150
+        property int lintSessionId: -2
+        property int lintIndex: -1
+        property int lintIndividu:-1
+        property int lintConvenientTemp: 0
 
+        onLintSessionIdChanged: {
+            columnDetailSessions.visible = true;
+            dtlSessionDate.text = accInfo.getSessiondDate(lintIndividu, lintIndex);
+            dtlSessionDuree.text = accInfo.getSessionDuration(lintIndividu, lintIndex);
+            sumATSession.text = accInfo.getSessionTotalMVT(lintSessionId);
+            //var lfltRythmeMvt = accInfo.getSessionRythmeMoyenMVT(lintSessionId)
+            lintConvenientTemp = accInfo.getSessionRythmeMoyenMVT(lintSessionId);
+            rythmATSession.text = " ("+lintConvenientTemp.toString()+" mvt/min) ";
+            nbobjettriesSession.extension = accInfo.getSessionTotalObjets(lintSessionId);
+            nbchargesLourdesSession.extension = accInfo.getSessionTotalCharges(lintSessionId);
+            repetitiviteSession.extension = accInfo.getSessionMeanRepetitivite(lintSessionId);
+            lintConvenientTemp = accInfo.getSessionMeanOCRA(lintSessionId)*10;
+            meanOCRASession.text = lintConvenientTemp / 10.0;
+            /*
+            Vert    :   < 2,2       Pas de risque
+            Jaune   :   2,3 - 3,5   Risque faible, moins du double que pour la case verte
+            Rouge   :   > 3,5       Risque plus de deux fois plus grand que pour la case verte */
+            if ((lintConvenientTemp / 10.0)<2.2){
+                meanOCRASession.color = "green";
+                valeursOCRA.color =  "green";
+                axisYOCRA.color=  "green";
+            }
+            else if ((lintConvenientTemp / 10.0)<3.5){
+                meanOCRASession.color = "orange";
+                valeursOCRA.color =  "orange";
+                axisYOCRA.color=  "orange";
+            }
+            else{
+                meanOCRASession.color = "red";
+                valeursOCRA.color =  "red";
+                axisYOCRA.color=  "red";
+            }
 
+            lintConvenientTemp = accInfo.getSessionMeanRisque(lintSessionId)*10;
+            meanRiskSession.text = lintConvenientTemp / 10.0;
+            if ((lintConvenientTemp / 10.0)<33){
+                avisRisque.color= "green";
+                meanRiskSession.color = "green";
+                avisRisque.text = " Risque nul ou tres faible ";
+                axisYtms.max = 33;
+                valeursTMS.color= "green";
+                valeursAccAT.color = "green";
+                axisYtms.color= "green";
+            }
+            else if ((lintConvenientTemp / 10.0)<67){
+                meanRiskSession.color = "orange";
+                avisRisque.color= "orange";
+                avisRisque.text = " Risque modere ";
+                axisYtms.max = 67;
+                valeursTMS.color= "orange";
+                valeursAccAT.color = "orange";
+                axisYtms.color= "orange";
+            }
+            else{
+                meanRiskSession.color = "red";
+                avisRisque.color= "red";
+                avisRisque.text = " Risque important, prendre des mesures ";
+                axisYtms.max = 100;
+                valeursTMS.color= "red";
+                valeursAccAT.color = "red";
+                axisYtms.color= "red";
+            }
+            meanRiskSession.text = meanRiskSession.text + "%";
+
+            valeursAccAT.clear();
+            valeursOCRA.clear();
+            valeursTMS.clear();
+            lintConvenientTemp = accInfo.getSessionNbEnregistrements(lintSessionId)
+            axisXOCRA.max = lintConvenientTemp;
+            axisXat.max = lintConvenientTemp;
+            axisXtms.max = lintConvenientTemp;
+            for (var i=0;i<lintConvenientTemp;i++)
+            {
+                valeursAccAT.append(Number(i),accInfo.getSessionValueAT(lintSessionId,i));
+                valeursOCRA.append(Number(i),accInfo.getSessionValueOCRA(lintSessionId,i));
+                valeursTMS.append(Number(i),accInfo.getSessionValueRisk(lintSessionId,i));
+            }
+        }
+
+        Column{
+            id: contenuDetailSession
+            padding: 4
+            Row{
+                Text{
+                    text:"Session du "
+                    color: "#FCFCFC"
+                    font.pixelSize: fontSize//bigFontSize
+                    font.bold: true
+                }
+                Text {
+                    id: dtlSessionDate
+                    text: "-11"//columnDetailSessions.lintSessionId.toString()
+                    color: "#FCFCFC"
+                    font.pixelSize: fontSize//bigFontSize
+                    //font.bold: true
+                }
+                Text{
+                    text:" Durée : "
+                    color: "#FCFCFC"
+                    font.pixelSize: fontSize//bigFontSize
+                    font.bold: true
+                }
+                Text {
+                    id: dtlSessionDuree
+                    text: qsTr("45 min.")
+                    color: "#FCFCFC"
+                    font.pixelSize: fontSize//bigFontSize
+                }
+            }
+            Rectangle{
+                height: 4
+                width: 100
+                color: "#262626"
+            }
+            Row{
+                Text {
+                    text: qsTr("Nombre d'Actions Techniques :")
+                    color: "#DCECF2"
+                    font.pixelSize: fontSize//bigFontSize
+                    font.bold: true
+                }
+            }
+
+            ChartView{
+                //y: affichageNombreExtension.y
+                id: chrtViewNbActions
+                width: 260
+                height: 140
+                theme: ChartView.ChartThemeDark
+                antialiasing: true
+                margins.top: 0
+                margins.left:0
+                margins.right:0
+                margins.bottom: 0
+                legend.visible:false/**/
+
+                ValueAxis
+                {
+                    id: axisYat
+                    min:0
+                    max:20
+                }
+                ValueAxis
+                {
+                    id:axisXat
+                    min:0
+                    max:10
+                }
+                LineSeries
+                {
+                    id: valeursAccAT
+                    axisY: axisYat
+                    axisX:axisXat
+                    name: "AT"
+                }
+            }
+            Row{
+                Text {
+                    text: qsTr("Total : ")
+                    color: "#FCFCFC"
+                    font.pixelSize: fontSize
+                    //font.bold: true
+                }
+                Text {
+                    id: sumATSession
+                    text: qsTr("892")
+                    color: "#FCFCFC"
+                    font.pixelSize: fontSize+2
+                    font.bold: true
+                }
+                Text {
+                    id: rythmATSession
+                    text: qsTr(" (20/min)")
+                    color: "#FCFCFC"
+                    font.pixelSize: fontSize+2
+                    font.bold: true
+                }
+            }
+            Rectangle{
+                height: 4
+                width: 100
+                color: "#262626"
+            }
+            Text {
+                text: qsTr("Risques TMS et indice OCRA :")
+                color: "#DCECF2"
+                font.pixelSize: fontSize//bigFontSize
+                font.bold: true
+            }
+            ChartView{
+                //y: affichageNombreExtension.y
+                id: chrtViewRisquesTMS
+                width: 260
+                height: 140
+                theme: ChartView.ChartThemeDark
+                antialiasing: true
+                margins.top: 0
+                margins.left:0
+                margins.right:0
+                margins.bottom: 0
+                legend.visible:false
+
+                ValueAxis
+                {
+                    id: axisYtms
+                    min:0
+                    max:33
+                }
+                ValueAxis
+                {
+                    id:axisXtms
+                    min:0
+                    max:10
+                }
+                ValueAxis
+                {
+                    id: axisYOCRA
+                    min:0
+                    max:10
+                }
+                ValueAxis
+                {
+                    id:axisXOCRA
+                    min:0
+                    max:10
+                }
+                LineSeries
+                {
+                    id: valeursOCRA
+                    axisY: axisYOCRA
+                    axisX:axisXOCRA
+                    name: "OCRA"
+
+                }
+                LineSeries
+                {
+                    id: valeursTMS
+                    axisY: axisYtms
+                    axisX:axisXOCRA
+                    name: "Risque"
+                }
+            }
+            Row{
+                Text {
+                    text: qsTr("OCRA : ")
+                    color: "#FCFCFC"
+                    font.pixelSize: fontSize//bigFontSize
+                    font.bold: true
+                }
+                Text {
+                    id: meanOCRASession
+                    text: qsTr("2.8 ")
+                    color: "red"
+                    font.pixelSize: fontSize//bigFontSize
+                    font.bold: true
+                }
+                Text {
+                    text: qsTr("  Risque : ")
+                    color: "#FCFCFC"
+                    font.pixelSize: fontSize//bigFontSize
+                    font.bold: true
+                }
+                Text {
+                    id: meanRiskSession
+                    text: qsTr("72% ")
+                    color: "pink"
+                    font.pixelSize: fontSize//bigFontSize
+                    font.bold: true
+                }
+            }
+            Row{
+                Text {
+                    text: qsTr("AVIS : ")
+                    color: "#FCFCFC"
+                    font.pixelSize: smallFontSize//bigFontSize
+                    font.bold: true
+                }
+                Text {
+                    id: avisRisque
+                    text: qsTr("Attention, ajouter un agent a la chaine")
+                    color: "pink"
+                    font.pixelSize: smallFontSize//bigFontSize
+                    font.bold: true
+                }
+            }
+
+            Rectangle{
+                height: 2
+                width: 100
+                color: "#262626"
+            }
+            Text {
+                text: qsTr("Evaluation objets triés :")
+                color: "#DCECF2"
+                font.pixelSize: fontSize//bigFontSize
+                font.bold: true
+            }
+            Row{
+                FlodDrawArcTitle
+                {
+                    id: nbobjettriesSession
+                    tailleCarre: 80
+                    extension: 358
+                    epaisseur: 40
+                    arCouleur: "gold"
+                    generalTitle: "Objets"
+                    maxValue: 150
+                }
+                Rectangle{
+                    height: 7
+                    width: 15
+                    color: "#262626"
+                }
+                FlodDrawArcTitle
+                {
+                    id: nbchargesLourdesSession //getSessionTotalCharges
+                    tailleCarre: 80
+                    extension: 12
+                    epaisseur: 40
+                    arCouleur: "brown"
+                    generalTitle: "Charges"
+                    maxValue: 100
+                }
+                Rectangle{
+                    height: 2
+                    width: 15
+                    color: "#262626"
+                }
+                FlodDrawArcTitle
+                {
+                    id: repetitiviteSession //getSessionMeanRepetitivite
+                    tailleCarre: 80
+                    extension: 85
+                    epaisseur: 40
+                    arCouleur: "gray"
+                    generalTitle: "Répétitivité"
+                    maxValue: 100
+                }
+
+            }
+            Button{
+                text: "Plus d'informations >> "
+                background: Rectangle {
+                    id:btnCloud
+                    color:"#DCECF2"
+                    radius: 3
+                }
+                onPressed:
+                {
+                    btnCloud.color = "yellow"
+                }
+                onReleased:
+                {
+                    btnCloud.color = "#DCECF2"
+                }
+            }
 
         }
     }
@@ -608,7 +1045,7 @@ Row
         height: root.height  - generalSpacing - generalPadding
         id: affichageNombreExtension
         color: "#262626"
-        radius: 15
+        radius: root.width/150
        Column
         {
             padding: 10
@@ -746,16 +1183,18 @@ Row
         width: 264
         height: root.height - generalSpacing - generalPadding
         color: "#262626"
-        radius: 15
+        radius: root.width/150
         function displayInstantValues(lblMontre)
         {
-            var lintNombre = accInfo.getNbDonnees();
+            //Affiche la derniere valeur du tableau et met a jour regulierement
+            var lintSessionId = accInfo.getCurrentSessionId(identifiantUser);
+            var lintNombre = accInfo.getNbDonnees();//accInfo.getSessionNbEnregistrements(lintSessionId)
             var lintMaxGraph = 0, lintMinGraph=0;
             valeursAccX.name= "X";
             valueAxisX.max = lintNombre;
 
             //console.log("La montre affichee : "+chrtViewSmall.blWatch +" ; lblMontre= " + lblMontre);
-
+/*
             valeursAccX.clear();
             valeursAccY.clear();
             valeursAccZ.clear();
@@ -765,16 +1204,16 @@ Row
                 valeursAccY.append(Number(i),accInfo.getValueY(i,lblMontre));
                 valeursAccZ.append(Number(i),accInfo.getValueZ(i,lblMontre));
             }
-
-            nbActions.extension = accInfo.getNbMouvements(0);
-            nbActions.extension2 = accInfo.getNbMouvements(1);
+*/
+            nbActions.extension = accInfo.getCurrentSessionLastAT(lintSessionId,0);
+            nbActions.extension2 = accInfo.getCurrentSessionLastAT(lintSessionId,1);
             nbActions.maxValue = 10;//*/
-            rythme.extension = accInfo.getFltRythmeInstantMVT(0);
-            rythme.extension2 = accInfo.getFltRythmeInstantMVT(1);
+            rythme.extension = accInfo.getSessionLastRyhtm(lintSessionId,0);
+            rythme.extension2 = accInfo.getSessionLastRyhtm(lintSessionId,1);
 
-            niveauDeRisques.extension = accInfo.getNiveauRisque(identifiantUser);
+            niveauDeRisques.extension = (accInfo.getSessionLastRisk(lintSessionId,0)+accInfo.getSessionLastRisk(lintSessionId,1))/2;
 
-            nbDechetsTriés.extension = accInfo.getNbDechets(0)+accInfo.getNbDechets(1);
+            nbDechetsTriés.extension = accInfo.getSessionLastObjets(lintSessionId,0)+accInfo.getNbDechets(lintSessionId,1);
             //nbDechetsTriés.extension2 = accInfo.getNbDechets(1);
 
             combinaisonAcc.clear();
@@ -786,7 +1225,11 @@ Row
         }
         function displayTotalValues()
         {
-            var lintNombre = accInfo.getIntNbTotalTransmission();
+            //identifiantUser
+            var lintSessionId = accInfo.getCurrentSessionId(identifiantUser);
+            var lintNombre = accInfo.getSessionNbEnregistrements(lintSessionId);//accInfo.getIntNbTotalTransmission();
+            //Affiche les valeurs moyennes
+
             valueAxisX.max = lintNombre+1;
             accInfo.getNbMouvements();
             accInfo.getNbMouvements(1);
@@ -887,13 +1330,13 @@ Row
                             if (gbolTotal)
                             {
                                 gbolTotal = false;
-                                btnTotal.text = "Total";
+                                btnTotal.text = "Moyenne";
                                 columnDisplay.displayInstantValues(chrtViewSmall.blWatch);
                             }
                             else
                             {
                                 gbolTotal = true;
-                                btnTotal.text = "Instant";
+                                btnTotal.text = "Detail";
                                 columnDisplay.displayTotalValues();
                             }
                     }
@@ -955,7 +1398,8 @@ Row
                                     columnDisplay.displayTotalValues();
                                 else
                                     columnDisplay.displayInstantValues(chrtViewSmall.blWatch);
-                                tpsTravail.extension = accInfo.getDureeTotaleEnregistrementEnMinutes();
+                                //var lintSessionId = accInfo.getCurrentSessionId(identifiantUser);
+                                tpsTravail.extension = accInfo.getCurrentSessionDuration(accInfo.getCurrentSessionId(identifiantUser))/60;//accInfo.getDureeTotaleEnregistrementEnMinutes();
                                 break;
                         }
                     }
@@ -985,7 +1429,7 @@ Row
                     }
 
                     background: Rectangle {
-                        color:"#0F6FC6"
+                        color:"#DCECF2"
                         id:btnBackChange
                         radius: 3
                     }
@@ -995,7 +1439,7 @@ Row
                     }
                     onReleased:
                     {
-                        btnBackChange.color = "#0F6FC6"
+                        btnBackChange.color = "#DCECF2"
                     }
                 }
                 y:titlePoste.y //+ titlePoste.parent.y + titlePoste.width

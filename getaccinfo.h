@@ -53,11 +53,31 @@ public:
     Q_INVOKABLE int getAgentId(QString strSerialNo);// a partir de sa montre
     Q_INVOKABLE int getAgentIdFromMessage(QString strMessage); //dans un message
 
+    // SESSION
     Q_INVOKABLE QString getCoreMessage(QString strSerialNo, bool lblOffset);
     Q_INVOKABLE int getAgentStatus(int lintIndex);
     Q_INVOKABLE int getNombreSessions(int lintIndex);
     Q_INVOKABLE QString getSessiondDate(int lintIndividu, int lintIndex);
     Q_INVOKABLE QString getSessionDuration(int lintIndividu, int lintIndex);
+    Q_INVOKABLE int getSessionDuration(int lintSession);  // en minutes
+    Q_INVOKABLE int getCurrentSessionDuration(int lintSession); // en secondes
+    Q_INVOKABLE int getSessionID(int lintIndividu, int lintIndex);
+    Q_INVOKABLE int getSessionNbEnregistrements(int lintSession);
+    Q_INVOKABLE int getSessionValueAT(int lintSession, int lintIndex);
+    Q_INVOKABLE int getCurrentSessionLastAT(int lintSession, bool lblMontre=0);
+    Q_INVOKABLE float getSessionLastRisk(int lintSession, bool lblMontre=0);
+    Q_INVOKABLE int getSessionLastObjets(int lintSession, bool lblMontre=0);
+    Q_INVOKABLE int getSessionValueOCRA(int lintSession, int lintIndex);
+    Q_INVOKABLE int getSessionValueRisk(int lintSession, int lintIndex);
+    Q_INVOKABLE int getSessionTotalMVT(int lintSession);
+    Q_INVOKABLE int getSessionTotalObjets(int lintSession);
+    Q_INVOKABLE int getSessionTotalCharges(int lintSession);
+    Q_INVOKABLE float getSessionMeanRepetitivite(int lintSession); //repetitivite
+    Q_INVOKABLE float getSessionMeanOCRA(int lintSession); //indice_OCRA
+    Q_INVOKABLE float getSessionMeanRisque(int lintSession);//niveau_risque
+    Q_INVOKABLE float getSessionRythmeMoyenMVT(int lintSession); // en mouvements par minute
+    Q_INVOKABLE float getSessionLastRyhtm(int lintSession, bool lblMontre=0); //en mvt par minute
+    Q_INVOKABLE int getCurrentSessionId(int lintIndividu);
 
     Q_INVOKABLE bool setSessionMustStart(int lintIndividu);
     Q_INVOKABLE bool setSessionWouldStop(int lintIndividu);
@@ -71,7 +91,6 @@ public:
     Q_INVOKABLE bool setAgentWatch(int lintIndividu, QString lstrWatchID, bool lblGauche = false); // attribue une montre a un agent
 
     Q_INVOKABLE QString getAgentNom(QString strMessage);
-
 
 private:
     static const int MAXACCFILES = 3; // Nombre maximal de fichiers accéléromètres pouvant être utilisés
@@ -104,10 +123,10 @@ private:
     float getOCRA_RTA();
     void setOcraRta(float lfltOCRA_RTA);
     float getDbNiveauDeRisque(int lintSession);
-    int getCurrentSessionDuration(int lintSession); // en secondes
+
     int getAgentIdFromSession(int lintSession);
-    int getSessionTotalMVT(int lintSession);
-    float getSessionRythmeMoyenMVT(int lintSession);
+
+
 
     //QSqlDatabase mydb = QSqlDatabase::addDatabase("QSQLITE");
     QSqlDatabase mydb = QSqlDatabase::addDatabase("QMYSQL");

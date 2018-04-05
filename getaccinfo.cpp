@@ -146,6 +146,7 @@ int getAccInfo::readSessionFiles()
                 // Recupere les donnees a utiliser tout le temps
                 QString strSerialNo = sqry.value(0).toString();
                 QString strSessionId = sqry.value(2).toString();
+                QString lstrFilename = "";
                 int intSessionId = sqry.value(2).toInt();
                 // Maintenant il faut lire le fichier correspondant a chaque ligne dont on a le serialno et le timestamp de debut en s'inspirant de autoreadfile
                 QString destFile = sqry.value(1).toString();//.truncate(3); // 3 premiers caracteres du timestamp de la BDD Session
@@ -204,7 +205,8 @@ int getAccInfo::readSessionFiles()
                 for (unsigned int lintNbFile=luintStartingFileOffset;lintNbFile<luintStartingFileOffset+getNbAxes();lintNbFile++)
                 {
                     filename = UPLOADACCPATH;
-                    filename.append(filemodel->entryList().at(lintNbFile));
+                    lstrFilename = filemodel->entryList().at(lintNbFile);
+                    filename.append(lstrFilename);
                     // qDebug() << " Ouverture du fichier : " + filemodel->entryList().at(lintNbFile);
 
                     QFile mFile(filename);
@@ -343,7 +345,7 @@ int getAccInfo::readSessionFiles()
 
                 //et tout mettre dans la table enregistrements                        
                 QSqlQuery nquery(mydb);
-                QString lstQuery = "INSERT INTO enregistrements (Session, serialno_montre, time_offset, duree, nb_actions, nb_objets, indice_OCRA, niveau_risque) VALUES (" +
+                QString lstQuery = "INSERT INTO enregistrements (Session, serialno_montre, time_offset, duree, nb_actions, nb_objets, indice_OCRA, niveau_risque, filename) VALUES (" +
                         strSessionId+ ", '" +
                         strSerialNo + "', " +
                         QString::number(luintTimeOffset) + ", " +
@@ -351,10 +353,11 @@ int getAccInfo::readSessionFiles()
                         QString::number(lintNbMvt) + ", " +
                         QString::number(lintNbDechet)+ ", " +
                         QString::number(lfltOCRAindex, 'f', 2)+ ", " +
-                        QString::number(lfltRisque, 'f', 2)
-                        + ")";
+                        QString::number(lfltRisque, 'f', 2)+ ", '" +
+                        lstrFilename
+                        + "')";
 
-                //qDebug() << lstQuery;
+                qDebug() << lstQuery;
                 nquery.exec(lstQuery);
                 //retourner le nombre de fichiers lus avec succes
                 lintCount++;
@@ -826,7 +829,125 @@ int getAccInfo::getSessionTotalMVT(int lintSession)
         {
             if (sqry.first())
             {
-                return sqry.value(0).toInt();//pour l'avoir en secondes
+                return sqry.value(0).toInt();
+            }
+        }
+        else
+            qDebug() << lstQuery;
+        return -1;
+    }
+}
+
+int getAccInfo::getSessionTotalObjets(int lintSession)
+{
+    if (!mydb.open())
+        return -1;
+    else
+    {
+        QSqlQuery sqry(mydb);
+        QString lstQuery = "SELECT sum(nb_objets) FROM vaucheptms.enregistrements where Session="+QString::number(lintSession);
+        //qDebug() << lstQuery;
+
+        if (sqry.exec(lstQuery))
+        {
+            if (sqry.first())
+            {
+                return sqry.value(0).toInt();
+            }
+        }
+        else
+            qDebug() << lstQuery;
+        return -1;
+    }
+}
+
+int getAccInfo::getSessionTotalCharges(int lintSession)
+{
+    if (!mydb.open())
+        return -1;
+    else
+    {
+        QSqlQuery sqry(mydb);
+        QString lstQuery = "SELECT sum(nb_charges_lourdes) FROM vaucheptms.enregistrements where Session="+QString::number(lintSession);
+        //qDebug() << lstQuery;
+
+        if (sqry.exec(lstQuery))
+        {
+            if (sqry.first())
+            {
+                return sqry.value(0).toInt();
+            }
+        }
+        else
+            qDebug() << lstQuery;
+        return -1;
+    }
+}
+
+float getAccInfo::getSessionMeanRepetitivite(int lintSession)
+{
+    //repetitivite
+    if (!mydb.open())
+        return -1;
+    else
+    {
+        QSqlQuery sqry(mydb);
+        QString lstQuery = "SELECT avg(repetitivite) FROM vaucheptms.enregistrements where Session="+QString::number(lintSession);
+        //qDebug() << lstQuery;
+
+        if (sqry.exec(lstQuery))
+        {
+            if (sqry.first())
+            {
+                return sqry.value(0).toFloat();
+            }
+        }
+        else
+            qDebug() << lstQuery;
+        return -1;
+    }
+}
+
+float getAccInfo::getSessionMeanOCRA(int lintSession)
+{
+    //indice_OCRA
+    if (!mydb.open())
+        return -1;
+    else
+    {
+        QSqlQuery sqry(mydb);
+        QString lstQuery = "SELECT avg(indice_OCRA) FROM vaucheptms.enregistrements where Session="+QString::number(lintSession);
+        //qDebug() << lstQuery;
+
+        if (sqry.exec(lstQuery))
+        {
+            if (sqry.first())
+            {
+                return sqry.value(0).toFloat();
+            }
+        }
+        else
+            qDebug() << lstQuery;
+        return -1;
+    }
+}
+
+float getAccInfo::getSessionMeanRisque(int lintSession)
+{
+    //niveau_risque
+    if (!mydb.open())
+        return -1;
+    else
+    {
+        QSqlQuery sqry(mydb);
+        QString lstQuery = "SELECT avg(niveau_risque) FROM vaucheptms.enregistrements where Session="+QString::number(lintSession);
+        //qDebug() << lstQuery;
+
+        if (sqry.exec(lstQuery))
+        {
+            if (sqry.first())
+            {
+                return sqry.value(0).toFloat();
             }
         }
         else
@@ -842,6 +963,39 @@ float getAccInfo::getSessionRythmeMoyenMVT(int lintSession)
     if (lfltSessionDuration>0)
          lfltRetour = getSessionTotalMVT(lintSession)/(lfltSessionDuration/60.0);
     return lfltRetour;
+}
+
+float getAccInfo::getSessionLastRyhtm(int lintSession, bool lblMontre)
+{
+    float lfltRetour = 0;//;
+    float lfltSessionDuration = getCurrentSessionDuration(lintSession);
+    if (lfltSessionDuration>0)
+         lfltRetour = getCurrentSessionLastAT(lintSession,lblMontre)/(lfltSessionDuration/60.0);
+    return lfltRetour;
+}
+
+int getAccInfo::getCurrentSessionId(int lintIndividu)
+{
+    // SELECT Id FROM vaucheptms.sessions where Actif=2 and Identite=3 ;
+    if (!mydb.open())
+        return -9;
+    else
+    {
+        QSqlQuery sqry(mydb);
+        QString lstQuery = "SELECT Id FROM vaucheptms.sessions where Actif=2 and Identite="+QString::number(lintIndividu);
+        //qDebug() << lstQuery;
+
+        if (sqry.exec(lstQuery))
+        {
+            if (sqry.first())
+            {
+                return sqry.value(0).toInt();
+            }
+        }
+        else
+            qDebug() << lstQuery;
+        return -1;
+    }
 }
 
 void getAccInfo::setDureeTransmission(int lintNbSecondes)
@@ -1128,8 +1282,8 @@ int getAccInfo::getNombreSessions(int lintIndex)
     else
     {
         QSqlQuery sqry(mydb);
-        QString lstQuery = "SELECT COUNT(*) from sessions where duree>100 AND Identite="+QString::number(lintIndex);
-        //qDebug() << lstQuery;
+        QString lstQuery = "SELECT count(distinct sessions.Id) from sessions,enregistrements where sessions.Duree>100 and enregistrements.Session=sessions.Id AND Identite="+QString::number(lintIndex);
+        qDebug() << lstQuery;
 
         if (sqry.exec(lstQuery))
         {
@@ -1152,7 +1306,7 @@ QString getAccInfo::getSessiondDate(int lintIndividu, int lintIndex)
     else
     {
         QSqlQuery sqry(mydb);
-        QString lstQuery = "SELECT date_debut from sessions where duree>100 AND Identite="+QString::number(lintIndividu)+" order by date_debut desc limit 1 offset "+QString::number(lintIndex);
+        QString lstQuery = "SELECT date_debut from sessions,enregistrements where sessions.Duree>100 AND Identite="+QString::number(lintIndividu)+" and enregistrements.Session=sessions.Id GROUP BY enregistrements.Session order by date_debut desc limit 1 offset "+QString::number(lintIndex);
         //qDebug() << lstQuery;
 
         if (sqry.exec(lstQuery))
@@ -1178,7 +1332,7 @@ QString getAccInfo::getSessionDuration(int lintIndividu, int lintIndex)
     else
     {
         QSqlQuery sqry(mydb);
-        QString lstQuery = "SELECT Duree from sessions where duree>100 AND Identite="+QString::number(lintIndividu)+" order by date_debut desc limit 1 offset "+QString::number(lintIndex);
+        QString lstQuery = "SELECT sessions.Duree from sessions,enregistrements where sessions.Duree>100 AND Identite="+QString::number(lintIndividu)+" and enregistrements.Session=sessions.Id GROUP BY enregistrements.Session order by date_debut desc limit 1 offset "+QString::number(lintIndex);
         //qDebug() << lstQuery;
 
         if (sqry.exec(lstQuery)){
@@ -1194,6 +1348,196 @@ QString getAccInfo::getSessionDuration(int lintIndividu, int lintIndex)
         else
             qDebug() << lstQuery;
         return "-9999";
+    }
+}
+
+int getAccInfo::getSessionDuration(int lintSession)
+{
+    if (!mydb.open())
+        return -9;
+    else
+    {
+        QSqlQuery sqry(mydb);
+        QString lstQuery = "SELECT sessions.Duree from sessions where sessions.Id="+QString::number(lintSession);
+        //qDebug() << lstQuery;
+
+        if (sqry.exec(lstQuery)){
+            if (sqry.first())
+                    return sqry.value(0).toULongLong()/60000;
+        }
+        else
+            qDebug() << lstQuery;
+        return -1;
+    }
+}
+
+int getAccInfo::getSessionID(int lintIndividu, int lintIndex)
+{
+    if (!mydb.open())
+        return -99;
+    else
+    {
+        QSqlQuery sqry(mydb);
+        QString lstQuery = "SELECT sessions.Id from sessions,enregistrements where sessions.Duree>100 AND Identite="+QString::number(lintIndividu)+" and enregistrements.Session=sessions.Id GROUP BY enregistrements.Session order by date_debut desc limit 1 offset "+QString::number(lintIndex);
+        //qDebug() << lstQuery;
+
+        if (sqry.exec(lstQuery)){
+            if (sqry.first()){
+                return sqry.value(0).toInt();
+            }
+        }
+        else
+            qDebug() << lstQuery;
+        return -9;
+    }
+}
+
+int getAccInfo::getSessionNbEnregistrements(int lintSession)
+{
+    if (!mydb.open())
+        return -99;
+    else
+    {
+        QSqlQuery sqry(mydb);
+        QString lstQuery = "SELECT count(*) from enregistrements where enregistrements.Session="+QString::number(lintSession);
+        //qDebug() << lstQuery;
+
+        if (sqry.exec(lstQuery)){
+            if (sqry.first()){
+                return sqry.value(0).toInt();
+            }
+        }
+        else
+            qDebug() << lstQuery;
+        return -9;
+    }
+}
+
+int getAccInfo::getSessionValueAT(int lintSession, int lintIndex)
+{
+    //SELECT nb_actions from enregistrements where enregistrements.Session=93 limit 1 offset 0;
+    if (!mydb.open())
+        return -99;
+    else
+    {
+        QSqlQuery sqry(mydb);
+        QString lstQuery = "SELECT nb_actions from enregistrements where enregistrements.Session="+QString::number(lintSession)+" limit 1 offset "+QString::number(lintIndex);
+        //qDebug() << lstQuery;
+
+        if (sqry.exec(lstQuery)){
+            if (sqry.first()){
+                return sqry.value(0).toInt();
+            }
+        }
+        else
+            qDebug() << lstQuery;
+        return -9;
+    }
+}
+
+int getAccInfo::getCurrentSessionLastAT(int lintSession, bool lblMontre)
+{
+    //SELECT nb_actions, time_offset FROM vaucheptms.enregistrements where Session=93 and  (poignet_gauche=b'0' or poignet_gauche is null)  order by time_offset desc limit 1;
+    if (!mydb.open())
+        return -99;
+    else
+    {
+        QSqlQuery sqry(mydb);
+        QString lstQuery = "SELECT nb_actions FROM vaucheptms.enregistrements where Session="+QString::number(lintSession)+" and (poignet_gauche=b'"+ QString::number(lblMontre)+"' or poignet_gauche is null)  order by time_offset desc limit 1";
+        //qDebug() << lstQuery;
+
+        if (sqry.exec(lstQuery)){
+            if (sqry.first()){
+                return sqry.value(0).toInt();
+            }
+        }
+        else
+            qDebug() << lstQuery;
+        return -9;
+    }
+}
+
+float getAccInfo::getSessionLastRisk(int lintSession, bool lblMontre)
+{
+    if (!mydb.open())
+        return -99;
+    else
+    {
+        QSqlQuery sqry(mydb);
+        QString lstQuery = "SELECT niveau_risque FROM vaucheptms.enregistrements where Session="+QString::number(lintSession)+" and (poignet_gauche=b'"+ QString::number(lblMontre)+"' or poignet_gauche is null)  order by time_offset desc limit 1";
+        //qDebug() << lstQuery;
+
+        if (sqry.exec(lstQuery)){
+            if (sqry.first()){
+                return sqry.value(0).toFloat();
+            }
+        }
+        else
+            qDebug() << lstQuery;
+        return 0;
+    }
+}
+
+int getAccInfo::getSessionLastObjets(int lintSession, bool lblMontre)
+{
+    if (!mydb.open())
+        return -99;
+    else
+    {
+        QSqlQuery sqry(mydb);
+        QString lstQuery = "SELECT niveau_risque FROM vaucheptms.enregistrements where Session="+QString::number(lintSession)+" and (poignet_gauche=b'"+ QString::number(lblMontre)+"' or poignet_gauche is null)  order by time_offset desc limit 1";
+        //qDebug() << lstQuery;
+
+        if (sqry.exec(lstQuery)){
+            if (sqry.first()){
+                return sqry.value(0).toInt();
+            }
+        }
+        else
+            qDebug() << lstQuery;
+        return 0;
+    }
+}
+
+int getAccInfo::getSessionValueOCRA(int lintSession, int lintIndex)
+{
+    if (!mydb.open())
+        return -99;
+    else
+    {
+        QSqlQuery sqry(mydb);
+        QString lstQuery = "SELECT indice_OCRA from enregistrements where enregistrements.Session="+QString::number(lintSession)+" limit 1 offset "+QString::number(lintIndex);
+        //qDebug() << lstQuery;
+
+        if (sqry.exec(lstQuery)){
+            if (sqry.first()){
+                return sqry.value(0).toInt();
+            }
+        }
+        else
+            qDebug() << lstQuery;
+        return -9;
+    }
+}
+
+int getAccInfo::getSessionValueRisk(int lintSession, int lintIndex)
+{
+    if (!mydb.open())
+        return -99;
+    else
+    {
+        QSqlQuery sqry(mydb);
+        QString lstQuery = "SELECT niveau_risque from enregistrements where enregistrements.Session="+QString::number(lintSession)+" limit 1 offset "+QString::number(lintIndex);
+        //qDebug() << lstQuery;
+
+        if (sqry.exec(lstQuery)){
+            if (sqry.first()){
+                return sqry.value(0).toInt();
+            }
+        }
+        else
+            qDebug() << lstQuery;
+        return -9;
     }
 }
 
