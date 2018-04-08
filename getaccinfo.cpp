@@ -1499,6 +1499,27 @@ int getAccInfo::getSessionLastObjets(int lintSession, bool lblMontre)
     }
 }
 
+int getAccInfo::getSessionLastCharges(int lintSession, bool lblMontre)
+{
+    if (!mydb.open())
+        return -99;
+    else
+    {
+        QSqlQuery sqry(mydb);
+        QString lstQuery = "SELECT nb_charges_lourdes FROM vaucheptms.enregistrements where Session="+QString::number(lintSession)+" and (poignet_gauche=b'"+ QString::number(lblMontre)+"' or poignet_gauche is null)  order by time_offset desc limit 1";
+        //qDebug() << lstQuery;
+
+        if (sqry.exec(lstQuery)){
+            if (sqry.first()){
+                return sqry.value(0).toInt();
+            }
+        }
+        else
+            qDebug() << lstQuery;
+        return 0;
+    }
+}
+
 int getAccInfo::getSessionValueOCRA(int lintSession, int lintIndex)
 {
     if (!mydb.open())

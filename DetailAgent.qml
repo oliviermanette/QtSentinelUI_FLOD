@@ -283,9 +283,6 @@ Row
                     }
                 }
             }
-
-
-
             Image
             {
                 source: "Image1.jpg"
@@ -354,7 +351,7 @@ Row
             {
                 id:btnContact
                 contentItem: Label {
-                    color: "white"
+                    //color: "white"
                     text: " Contacter "
                     font.bold: true
                     font.pixelSize: smallFontSize
@@ -389,7 +386,7 @@ Row
                     id:btnStatus
                     contentItem: Label {
                         id:lblbtnStatus
-                        color: "white"
+                        //color: "white"
                         text: " _ "
                         font.bold: true
                         font.pixelSize: smallFontSize
@@ -1211,16 +1208,19 @@ Row
             rythme.extension = accInfo.getSessionLastRyhtm(lintSessionId,0);
             rythme.extension2 = accInfo.getSessionLastRyhtm(lintSessionId,1);
 
-            niveauDeRisques.extension = (accInfo.getSessionLastRisk(lintSessionId,0)+accInfo.getSessionLastRisk(lintSessionId,1))/2;
+            niveauDeRisques.extension = (accInfo.getSessionLastRisk(lintSessionId,0)+accInfo.getSessionLastRisk(lintSessionId,1))/2; //TRES MAUVAISE IDEE Cette moyenne ca n'a aucun sens !!!!!
+            //Faire extension2 pour niveau de risque
 
-            nbDechetsTriés.extension = accInfo.getSessionLastObjets(lintSessionId,0)+accInfo.getNbDechets(lintSessionId,1);
+            nbDechetsTriés.extension = accInfo.getSessionLastObjets(lintSessionId,0)+accInfo.getSessionLastObjets(lintSessionId,1);
             //nbDechetsTriés.extension2 = accInfo.getNbDechets(1);
-
+            nbChargesLourdes.extension = accInfo.getSessionLastCharges(lintSessionId,0)+accInfo.getSessionLastCharges(lintSessionId,1);
+            /*
             combinaisonAcc.clear();
             for (i=0;i<lintNombre;i++)
                 combinaisonAcc.append(Number(i),accInfo.getCombinaison(i,lblMontre));
-            valueAxisY.min = accInfo.getGeneralMin(lblMontre)-2;
+            valueAxisY.min = accInfo.getGeneralMin(lblMontre)-2;            
             valueAxisY.max = accInfo.getGeneralMax(lblMontre)+2;
+            */
             return 0;
         }
         function displayTotalValues()

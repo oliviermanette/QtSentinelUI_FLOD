@@ -67,6 +67,7 @@ public:
     Q_INVOKABLE int getCurrentSessionLastAT(int lintSession, bool lblMontre=0);
     Q_INVOKABLE float getSessionLastRisk(int lintSession, bool lblMontre=0);
     Q_INVOKABLE int getSessionLastObjets(int lintSession, bool lblMontre=0);
+    Q_INVOKABLE int getSessionLastCharges(int lintSession, bool lblMontre=0);
     Q_INVOKABLE int getSessionValueOCRA(int lintSession, int lintIndex);
     Q_INVOKABLE int getSessionValueRisk(int lintSession, int lintIndex);
     Q_INVOKABLE int getSessionTotalMVT(int lintSession);
