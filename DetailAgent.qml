@@ -193,6 +193,19 @@ Row
 
         serialNoD = accInfo.getMontreSN(identifiantUser,0);//" - "
         serialNoG = accInfo.getMontreSN(identifiantUser);
+        if (serialNoD=="-9999")
+            lightMontreDroit.color = "red";
+        else if (accInfo.getWatchStatus(serialNoD))
+            lightMontreDroit.color = "lime";
+        else
+            lightMontreDroit.color = "red";
+        if (serialNoG=="-9999")
+            lightMontreGauche.color = "red";
+        else if (accInfo.getWatchStatus(serialNoG))
+            lightMontreGauche.color = "lime";
+        else
+            lightMontreGauche.color = "red";
+
         //Ajoute la liste des montres de la BDD
         var textMenu="";
 
@@ -370,7 +383,7 @@ Row
                     toto.color = "#DCECF2"
                 }
             }
-            Row
+            Column
             {
                 spacing: 20
                 Text
@@ -504,7 +517,6 @@ Row
                     Light
                     {
                         id:lightMontreGauche
-
                     }
                 }
             }
@@ -624,19 +636,19 @@ Row
                    btnBackTotal.color = "#DCECF2"
                }
             }
-
+/*
             Button
             {
                text: "Quitter"
                onClicked:
                    Qt.quit()
-            }
+            }*/
         }
     }
 
     Rectangle
     {
-        width: 264
+        width: 245
         height: root.height  - generalSpacing - generalPadding
         id:columnListSessions
         color: "#262626"
@@ -651,7 +663,7 @@ Row
                 id: txtTitleSessionList
                 text: qsTr("Liste des sessions :")
                 color: "#FCFCFC"
-                font.pixelSize: bigFontSize
+                font.pixelSize: bigFontSize+4
                 font.bold: true
             }
             Repeater
@@ -667,7 +679,7 @@ Row
     }
     Rectangle{
         id: columnDetailSessions
-        width: root.width/2.9
+        width: root.width/2.68
         height: root.height - generalSpacing - generalPadding
         color: "#262626"
         radius: root.width/150
@@ -802,8 +814,8 @@ Row
             ChartView{
                 //y: affichageNombreExtension.y
                 id: chrtViewNbActions
-                width: 260
-                height: 140
+                width: 220
+                height: 90
                 theme: ChartView.ChartThemeDark
                 antialiasing: true
                 margins.top: 0
@@ -868,8 +880,8 @@ Row
             ChartView{
                 //y: affichageNombreExtension.y
                 id: chrtViewRisquesTMS
-                width: 260
-                height: 140
+                width: 220
+                height: 90
                 theme: ChartView.ChartThemeDark
                 antialiasing: true
                 margins.top: 0
@@ -977,7 +989,7 @@ Row
                 FlodDrawArcTitle
                 {
                     id: nbobjettriesSession
-                    tailleCarre: 80
+                    tailleCarre: 60
                     extension: 358
                     epaisseur: 40
                     arCouleur: "gold"
@@ -986,13 +998,13 @@ Row
                 }
                 Rectangle{
                     height: 7
-                    width: 15
+                    width: 4
                     color: "#262626"
                 }
                 FlodDrawArcTitle
                 {
                     id: nbchargesLourdesSession //getSessionTotalCharges
-                    tailleCarre: 80
+                    tailleCarre: 60
                     extension: 12
                     epaisseur: 40
                     arCouleur: "brown"
@@ -1001,13 +1013,13 @@ Row
                 }
                 Rectangle{
                     height: 2
-                    width: 15
+                    width: 4
                     color: "#262626"
                 }
                 FlodDrawArcTitle
                 {
                     id: repetitiviteSession //getSessionMeanRepetitivite
-                    tailleCarre: 80
+                    tailleCarre: 60
                     extension: 85
                     epaisseur: 40
                     arCouleur: "gray"
@@ -1045,8 +1057,17 @@ Row
         radius: root.width/150
        Column
         {
-            padding: 10
-            spacing: 20
+            padding: 5
+            spacing: 5
+            Text
+            {
+                id: titleBiomeca
+                text: "Biomécanique"
+                font.bold: true
+                font.pixelSize: bigFontSize
+                horizontalAlignment: Text.AlignHCenter
+                color: "#FCFCFC"
+            }
              Row
             {
                 id: rowBiomeca
@@ -1056,18 +1077,11 @@ Row
                 {
                     id:columnGaucheBiomeca
                     spacing: generalSpacing
-                    Text
-                    {
-                        id: titleBiomeca
-                        text: "Biomécanique"
-                        font.bold: true
-                        font.pixelSize: bigFontSize
-                        horizontalAlignment: Text.AlignHCenter
-                        color: "#FCFCFC"
-                    }
+
                     Text
                     {
                         text: "zone d'évolution"
+                        id:lblZone
                         color: "#FCFCFC"
                         font.pixelSize: smallFontSize
                         x: (columnGaucheBiomeca.width - width)/2
@@ -1095,6 +1109,7 @@ Row
                     Image
                     {
                         source: "Image2.jpg"
+                        id:imgShowBody
                         width: affichageNombreExtension.width  /3.15
                         fillMode: Image.PreserveAspectFit
                         x: (parent.width - width) /2
@@ -1103,7 +1118,7 @@ Row
                     {
                         id: nbPas
                         strCouleur: "grey"
-                        txtValeurAffiche: "252"
+                        txtValeurAffiche: "19"
                         txtCaption: "Pas :"
                     }
                     FlodDrawArcTitle
@@ -1124,7 +1139,7 @@ Row
                     anchors.topMargin: 2
                     padding: generalPadding*2
                     spacing: extendedSpacing*2.5
-                   FlodDrawArcTitle
+                    FlodDrawArcTitle
                     {
                         id: niveauDeRisques
                         tailleCarre: tailleFLODArc
@@ -1134,6 +1149,42 @@ Row
                         generalTitle: "Niveau de Risques"
                         maxValue: 100
                     }
+                    ChartView{
+                        //y: affichageNombreExtension.y
+                        id: chrtVwCurrentRisk
+                        visible: false
+                        width: 200
+                        height: 120
+                        theme: ChartView.ChartThemeDark
+                        antialiasing: true
+                        margins.top: 10
+                        margins.left:0
+                        margins.right:0
+                        margins.bottom: 0
+                        legend.visible:true
+
+                        ValueAxis
+                        {
+                            id: axisYriskC
+                            min:0
+                            max:70
+                        }
+                        ValueAxis
+                        {
+                            id:axisXriskC
+                            min:0
+                            max:10
+                        }
+                        LineSeries
+                        {
+                            id: valeursRiskC
+                            axisY: axisYriskC
+                            axisX:axisXriskC
+                            color: "red"
+                            name: "Niveau de Risques"
+                        }
+                    }
+
                     FlodDrawArcTitle
                     {
                         id: nbActions
@@ -1153,10 +1204,43 @@ Row
                                 //console.log("changement de montre : "+chrtViewSmall.blWatch);
                                 columnDisplay.displayInstantValues(chrtViewSmall.blWatch);
                             }
-
-
                             //rythme.blDoubleDisplay = blDoubleDisplay
-                        }//*/
+                        }
+                    }
+                    ChartView{
+                        //y: affichageNombreExtension.y
+                        id: chrtViewNbActionsC
+                        visible: false
+                        width: 200
+                        height: 120
+                        theme: ChartView.ChartThemeDark
+                        antialiasing: true
+                        margins.top: 10
+                        margins.left:0
+                        margins.right:0
+                        margins.bottom: 0
+                        legend.visible:true
+
+                        ValueAxis
+                        {
+                            id: axisYatC
+                            min:0
+                            max:15
+                        }
+                        ValueAxis
+                        {
+                            id:axisXatC
+                            min:0
+                            max:10
+                        }
+                        LineSeries
+                        {
+                            id: valeursAccATC
+                            axisY: axisYatC
+                            axisX:axisXatC
+                            color: "purple"
+                            name: "Nombre d'actions"
+                        }
                     }
                     FlodDrawArcTitle
                     {
@@ -1202,6 +1286,29 @@ Row
                 valeursAccZ.append(Number(i),accInfo.getValueZ(i,lblMontre));
             }
 */
+            chrtViewNbActionsC.visible = false;
+            chrtVwCurrentRisk.visible = false;
+            nbActions.visible = true;
+            niveauDeRisques.visible = true;
+
+            nbDechetsTriés.visible = true;
+            chrtVwNbDechetsC.visible = false;
+            chrtVwNbChargesC.visible = false;
+
+            imgShowBody.visible = true;
+            nbPas.visible = true;
+            vibrations.visible = true;
+            evolJaune.visible=true;
+            evolRouge.visible = true;
+            evolVert.visible = true;
+            lblZone.visible = true;
+            columnDroiteBiomeca.spacing = extendedSpacing*2.5;
+            clmnTempsRythme.spacing = extendedSpacing*1.5;
+
+            columnGaucheBiomeca.visible = true;
+            columnGaucheBiomeca.enabled = true;
+            nbChargesLourdes.visible = true;
+
             nbActions.extension = accInfo.getCurrentSessionLastAT(lintSessionId,0);
             nbActions.extension2 = accInfo.getCurrentSessionLastAT(lintSessionId,1);
             nbActions.maxValue = 10;//*/
@@ -1228,253 +1335,347 @@ Row
             //identifiantUser
             var lintSessionId = accInfo.getCurrentSessionId(identifiantUser);
             var lintNombre = accInfo.getSessionNbEnregistrements(lintSessionId);//accInfo.getIntNbTotalTransmission();
+
+            chrtViewNbActionsC.visible = true;
+            chrtVwCurrentRisk.visible = true;
+            nbActions.visible = false;
+            niveauDeRisques.visible=false;
+            nbDechetsTriés.visible = false;
+            chrtVwNbDechetsC.visible = true;
+
+            imgShowBody.visible = false;
+            nbPas.visible = false;
+            vibrations.visible = false;
+            evolJaune.visible=false;
+            evolRouge.visible = false;
+            evolVert.visible = false;
+            lblZone.visible =false;
+            columnGaucheBiomeca.visible =false;
+            columnGaucheBiomeca.enabled = false;
+            nbChargesLourdes.visible = false;
+            chrtVwNbChargesC.visible = true;
+
+            columnDroiteBiomeca.spacing = extendedSpacing*0.9;
+            clmnTempsRythme.spacing = extendedSpacing*0.7;
             //Affiche les valeurs moyennes
-
-            valueAxisX.max = lintNombre+1;
-            accInfo.getNbMouvements();
-            accInfo.getNbMouvements(1);
-            //nombre total de mouvemement
-            nbActions.extension = accInfo.getIntNbTotalMVT();
-            nbActions.extension2 = accInfo.getIntNbTotalMVT(1);
-            nbActions.maxValue = 200;//*/
-            //rythme moyen depuis le début
-            rythme.extension = accInfo.getFltRythmeMoyenMVT(0);
-            rythme.extension2 = accInfo.getFltRythmeMoyenMVT(1);
-            //nb total de dechets triees depuis le debut
-            nbDechetsTriés.extension = accInfo.getNbDechetsTotal(0) + accInfo.getNbDechetsTotal(1);
-
-            // graphique
-            valeursAccX.clear();
-            valeursAccY.clear();
-            valeursAccZ.clear();
-            valeursAccX.name="Droite";
-            valeursAccY.name="Gauche";
-            combinaisonAcc.clear();
+            valeursAccATC.clear();
+            //valeursOCRA.clear();
+            valeursRiskC.clear();
+            valeursDechetsC.clear();
+            //lintConvenientTemp = accInfo.getSessionNbEnregistrements(lintSessionId)
+            //axisXOCRA.max = lintConvenientTemp;
+            axisXatC.max = lintNombre;
+            axisXriskC.max = lintNombre;
+            axisXDechetsC.max = lintNombre;
+            axisXChargesC.max = lintNombre;
+            //axisXtms.max = lintConvenientTemp;
             for (var i=0;i<lintNombre;i++)
             {
-                valeursAccX.append(Number(i),accInfo.getTblIntNbMVT(i,0));
-                valeursAccY.append(Number(i),accInfo.getTblIntNbMVT(i,1));
+                valeursAccATC.append(Number(i),accInfo.getSessionValueAT(lintSessionId,i));
+                //valeursOCRA.append(Number(i),accInfo.getSessionValueOCRA(lintSessionId,i));
+                valeursRiskC.append(Number(i),accInfo.getSessionValueRisk(lintSessionId,i));
+                valeursDechetsC.append(Number(i),accInfo.getSessionValueObjets(lintSessionId,i));
+                //valeursChargesC
             }
-            valueAxisY.min = 0;
-            valueAxisY.max = 15;
+            rythme.extension =accInfo.getSessionRythmeMoyenMVT(lintSessionId);
+            rythme.extension2 =0;
+
             return 0;
         }
-        Row
-        {
-            padding: generalPadding
-            spacing: extendedSpacing
-            Column
+        Column{
+            Row
             {
-                padding: generalPadding
-                spacing: generalSpacing * 1.73
-                Text
+                padding: 0//generalPadding
+                spacing: extendedSpacing
+                Column
                 {
-                    text: "Poste de Travail"
-                    font.bold: true
-                    font.pixelSize: bigFontSize
-                    horizontalAlignment: Text.AlignHCenter
-                    color: "#FCFCFC"
-                }
-                Row
-                {
+                    padding: generalPadding
+                    spacing: generalSpacing * 1.73
                     Text
                     {
-                        text: "Localisation : "
+                        text: "Poste de Travail"
                         font.bold: true
-                        font.pixelSize: fontSize
+                        font.pixelSize: bigFontSize
                         horizontalAlignment: Text.AlignHCenter
                         color: "#FCFCFC"
                     }
-                    Text
+                    Row
                     {
-                        id: titlePoste
-                        text: "Cabine Papiers"
-                        font.pixelSize: fontSize
-                        horizontalAlignment: Text.AlignHCenter
-                        color: "#FCFCFC"
-                    }
-                }
-                Image
-                {
-                    source: "Image3.jpg"
-                    width: columnDisplay.width /4.6
-                    fillMode: Image.PreserveAspectFit
-                    x : 20
-                }
-
-                ChartView
-                {
-                    property bool blWatch: false
-                    y: affichageNombreExtension.y
-                    id: chrtViewSmall
-                    width: 150
-                    height: 130
-                    theme: ChartView.ChartThemeDark
-                    antialiasing: true
-
-                    margins.top: 0
-                    margins.left:0
-                    margins.right:0
-                    margins.bottom: 0
-                    legend.visible:false
-
-                    onBlWatchChanged:
-                    {
-
-                    }
-
-                    MouseArea
-                    {
-                        anchors.fill: parent
-                        onClicked:
-                            if (gbolTotal)
-                            {
-                                gbolTotal = false;
-                                btnTotal.text = "Moyenne";
-                                columnDisplay.displayInstantValues(chrtViewSmall.blWatch);
-                            }
-                            else
-                            {
-                                gbolTotal = true;
-                                btnTotal.text = "Detail";
-                                columnDisplay.displayTotalValues();
-                            }
-                    }
-                    ValueAxis
-                    {
-                        id: valueAxisY
-                        min:-20
-                        max:10
-                    }
-                    ValueAxis
-                    {
-                        id:valueAxisX
-                        min:0
-                        max:10
-                    }
-                    LineSeries
-                    {
-                        id: valeursAccX
-                        axisY: valueAxisY
-                        axisX:valueAxisX
-                        name: "X"
-                    }
-                    LineSeries
-                    {
-                        id: valeursAccY
-                        axisY: valueAxisY
-                        axisX:valueAxisX
-                        name: "Y"
-                    }
-                    LineSeries
-                    {
-                        id: valeursAccZ
-                        axisY: valueAxisY
-                        axisX:valueAxisX
-                        name: "Z"
-                    }
-                    LineSeries
-                    {
-                        id: combinaisonAcc
-                        axisY: valueAxisY
-                        axisX: valueAxisX
-                        name: "R"
-                    }
-                }
-
-                Timer
-                {
-                    interval: 10000
-                    repeat: true
-                    triggeredOnStart: true
-                    running: true
-                    onTriggered: {
-                        montreGaucheSelection.addItem(qsTr("item3"));
-                        switch (state)
+                        Text
                         {
-                            case "Enregistrant":
-                                //accInfo.autoreadFile(serialNoG,serialNoD);
-                                if (gbolTotal)
-                                    columnDisplay.displayTotalValues();
-                                else
-                                    columnDisplay.displayInstantValues(chrtViewSmall.blWatch);
-                                //var lintSessionId = accInfo.getCurrentSessionId(identifiantUser);
-                                tpsTravail.extension = accInfo.getCurrentSessionDuration(accInfo.getCurrentSessionId(identifiantUser))/60;//accInfo.getDureeTotaleEnregistrementEnMinutes();
-                                break;
+                            text: "Localisation : "
+                            font.bold: true
+                            font.pixelSize: fontSize
+                            horizontalAlignment: Text.AlignHCenter
+                            color: "#FCFCFC"
+                        }
+                        Text
+                        {
+                            id: titlePoste
+                            text: "Cabine Papiers"
+                            font.pixelSize: fontSize
+                            horizontalAlignment: Text.AlignHCenter
+                            color: "#FCFCFC"
                         }
                     }
-                }
-                FlodDrawArcTitle
-                {
-                    id: nbChargesLourdes
-                    tailleCarre: tailleFLODArc
-                    extension: 45
-                    epaisseur: 50
-                    arCouleur: "brown"
-                    generalTitle: "Nb Charges Lourdes"
-                    maxValue: 70 // On définit ici le nombre de charges max
-                    x : (parent.width - width) /2
-                }
-            }
-            Column
-            {
-                spacing: extendedSpacing*1.5
-                Button
-                {
-                    contentItem: Label {
-                        color: "white"
-                        text: " Changer "
-                        font.bold: true
-                        font.pixelSize: smallFontSize
+                    Image
+                    {
+                        source: "Image3.jpg"
+                        width: columnDisplay.width /4.6
+                        fillMode: Image.PreserveAspectFit
+                        x : 20
+                    }
+                    ChartView{
+                        //y: affichageNombreExtension.y
+                        id: chrtVwNbDechetsC
+                        visible: false
+                        width: 180
+                        height: 120
+                        theme: ChartView.ChartThemeDark
+                        antialiasing: true
+                        margins.top: 10
+                        margins.left:0
+                        margins.right:0
+                        margins.bottom: 0
+                        legend.visible:true
+
+                        ValueAxis
+                        {
+                            id: axisYDechetsC
+                            min:0
+                            max:15
+                        }
+                        ValueAxis
+                        {
+                            id:axisXDechetsC
+                            min:0
+                            max:10
+                        }
+                        LineSeries
+                        {
+                            id: valeursDechetsC
+                            axisY: axisYDechetsC
+                            axisX: axisXDechetsC
+                            color: "gold"
+                            name: "Nb Déchets triés"
+                        }
+                    }
+                    ChartView{
+                        //y: affichageNombreExtension.y
+                        id: chrtVwNbChargesC
+                        visible: false
+                        width: 180
+                        height: 120
+                        theme: ChartView.ChartThemeDark
+                        antialiasing: true
+                        margins.top: 10
+                        margins.left:0
+                        margins.right:0
+                        margins.bottom: 0
+                        legend.visible:true
+
+                        ValueAxis
+                        {
+                            id: axisYChargesC
+                            min:0
+                            max:10
+                        }
+                        ValueAxis
+                        {
+                            id:axisXChargesC
+                            min:0
+                            max:10
+                        }
+                        LineSeries
+                        {
+                            id: valeursChargesC
+                            axisY: axisYChargesC
+                            axisX: axisXChargesC
+                            color: "brown"
+                            name: "Nb Charges Lourdes"
+                        }
                     }
 
-                    background: Rectangle {
-                        color:"#DCECF2"
-                        id:btnBackChange
-                        radius: 3
-                    }
-                    onPressed:
+                    ChartView
                     {
-                        btnBackChange.color = "yellow"
+                        property bool blWatch: false
+                        y: affichageNombreExtension.y
+                        id: chrtViewSmall
+                        width: 150
+                        height: 130
+                        theme: ChartView.ChartThemeDark
+                        antialiasing: true
+                        visible: false
+
+                        margins.top: 0
+                        margins.left:0
+                        margins.right:0
+                        margins.bottom: 0
+                        legend.visible:false
+
+                        onBlWatchChanged:
+                        {
+
+                        }
+
+                        MouseArea
+                        {
+                            anchors.fill: parent
+                            onClicked:
+                                if (gbolTotal)
+                                {
+                                    gbolTotal = false;
+                                    btnTotal.text = "Moyenne";
+                                    columnDisplay.displayInstantValues(chrtViewSmall.blWatch);
+                                }
+                                else
+                                {
+                                    gbolTotal = true;
+                                    btnTotal.text = "Detail";
+                                    columnDisplay.displayTotalValues();
+                                }
+                        }
+                        ValueAxis
+                        {
+                            id: valueAxisY
+                            min:-20
+                            max:10
+                        }
+                        ValueAxis
+                        {
+                            id:valueAxisX
+                            min:0
+                            max:10
+                        }
+                        LineSeries
+                        {
+                            id: valeursAccX
+                            axisY: valueAxisY
+                            axisX:valueAxisX
+                            name: "X"
+                        }
+                        LineSeries
+                        {
+                            id: valeursAccY
+                            axisY: valueAxisY
+                            axisX:valueAxisX
+                            name: "Y"
+                        }
+                        LineSeries
+                        {
+                            id: valeursAccZ
+                            axisY: valueAxisY
+                            axisX:valueAxisX
+                            name: "Z"
+                        }
+                        LineSeries
+                        {
+                            id: combinaisonAcc
+                            axisY: valueAxisY
+                            axisX: valueAxisX
+                            name: "R"
+                        }
                     }
-                    onReleased:
+
+                    Timer
                     {
-                        btnBackChange.color = "#DCECF2"
+                        interval: 10000
+                        repeat: true
+                        triggeredOnStart: true
+                        running: true
+                        onTriggered: {
+                            montreGaucheSelection.addItem(qsTr("item3"));
+                            switch (state)
+                            {
+                                case "Enregistrant":
+                                    //accInfo.autoreadFile(serialNoG,serialNoD);
+                                    if (gbolTotal)
+                                        columnDisplay.displayTotalValues();
+                                    else
+                                        columnDisplay.displayInstantValues(chrtViewSmall.blWatch);
+                                    //var lintSessionId = accInfo.getCurrentSessionId(identifiantUser);
+                                    tpsTravail.extension = accInfo.getCurrentSessionDuration(accInfo.getCurrentSessionId(identifiantUser))/60;//accInfo.getDureeTotaleEnregistrementEnMinutes();
+                                    break;
+                            }
+                        }
+                    }
+                    FlodDrawArcTitle
+                    {
+                        id: nbChargesLourdes
+                        tailleCarre: tailleFLODArc
+                        extension: 45
+                        epaisseur: 50
+                        arCouleur: "brown"
+                        generalTitle: "Nb Charges Lourdes"
+                        maxValue: 70 // On définit ici le nombre de charges max
+                        x : (parent.width - width) /2
                     }
                 }
-                y:titlePoste.y //+ titlePoste.parent.y + titlePoste.width
-                FlodDrawArcTitle
+                Column
                 {
-                    id: tpsTravail
-                    tailleCarre: tailleFLODArc
-                    extension: 110
-                    epaisseur: 50
-                    arCouleur: "blue"
-                    generalTitle: "Temps de travail"
-                    maxValue: 120
+                    id : clmnTempsRythme
+                    spacing: extendedSpacing*1.5
+                    Button
+                    {
+                        contentItem: Label {
+                            color: "white"
+                            text: " Changer "
+                            font.bold: true
+                            font.pixelSize: smallFontSize
+                        }
+
+                        background: Rectangle {
+                            color:"#DCECF2"
+                            id:btnBackChange
+                            radius: 3
+                        }
+                        onPressed:
+                        {
+                            btnBackChange.color = "yellow"
+                        }
+                        onReleased:
+                        {
+                            btnBackChange.color = "#DCECF2"
+                        }
+                    }
+                    y:titlePoste.y //+ titlePoste.parent.y + titlePoste.width
+                    FlodDrawArcTitle
+                    {
+                        id: tpsTravail
+                        tailleCarre: tailleFLODArc
+                        extension: 110
+                        epaisseur: 50
+                        arCouleur: "blue"
+                        generalTitle: "Temps de travail"
+                        maxValue: 120
+                    }
+                    FlodDrawArcTitle
+                    {
+                        id: rythme
+                        tailleCarre: tailleFLODArc
+                        extension: 41
+                        epaisseur: 50
+                        arCouleur: "green"
+                        generalTitle: "Rythme / minutes"
+                        maxValue: 90
+                        lblShowDouble: true
+                    }
+                    FlodDrawArcTitle
+                    {
+                        id: nbDechetsTriés
+                        tailleCarre: tailleFLODArc
+                        extension: 1450
+                        epaisseur: 50
+                        arCouleur: "gold"
+                        generalTitle: "Nb Déchets triés"
+                        maxValue: 1900
+                    }
                 }
-                FlodDrawArcTitle
-                {
-                    id: rythme
-                    tailleCarre: tailleFLODArc
-                    extension: 41
-                    epaisseur: 50
-                    arCouleur: "green"
-                    generalTitle: "Rythme / minutes"
-                    maxValue: 90
-                    lblShowDouble: true
-                }
-                FlodDrawArcTitle
-                {
-                    id: nbDechetsTriés
-                    tailleCarre: tailleFLODArc
-                    extension: 1450
-                    epaisseur: 50
-                    arCouleur: "gold"
-                    generalTitle: "Nb Déchets triés"
-                    maxValue: 1900
-                }
+
             }
+
         }
+
+
     }
 }

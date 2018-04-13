@@ -22,12 +22,14 @@ public:
     Q_INVOKABLE bool isOKStop(QString lstrSerialNo, QString lstrMontreG, QString lstrMontreD);
     Q_INVOKABLE bool isRecording(QString lstrSerialNo, QString lstrMontreG, QString lstrMontreD);
     Q_INVOKABLE bool isCanIStop(QString lstrSerialNo);
+    Q_INVOKABLE bool setAgentUpdateAll();
 
     ~PTMServer();
 
 signals:
     void closed();
     void receivedMessage(QString message);
+    void agentUpdater();
 
 public slots:
     void onNewConnection();

@@ -960,6 +960,7 @@ float getAccInfo::getSessionRythmeMoyenMVT(int lintSession)
 {
     float lfltRetour = 0;//;
     float lfltSessionDuration = getCurrentSessionDuration(lintSession);
+    qDebug() << "La durée de la session (time_offset) est : " + QString::number(lfltSessionDuration);
     if (lfltSessionDuration>0)
          lfltRetour = getSessionTotalMVT(lintSession)/(lfltSessionDuration/60.0);
     return lfltRetour;
@@ -1562,6 +1563,27 @@ int getAccInfo::getSessionValueRisk(int lintSession, int lintIndex)
     }
 }
 
+int getAccInfo::getSessionValueObjets(int lintSession, int lintIndex)
+{
+    if (!mydb.open())
+        return -99;
+    else
+    {
+        QSqlQuery sqry(mydb);
+        QString lstQuery = "SELECT nb_objets from enregistrements where enregistrements.Session="+QString::number(lintSession)+" limit 1 offset "+QString::number(lintIndex);
+        //qDebug() << lstQuery;
+
+        if (sqry.exec(lstQuery)){
+            if (sqry.first()){
+                return sqry.value(0).toInt();
+            }
+        }
+        else
+            qDebug() << lstQuery;
+        return -9;
+    }
+}
+
 bool getAccInfo::setSessionMustStart(int lintIndividu)
 {
     if (!mydb.open())
@@ -1749,6 +1771,32 @@ bool getAccInfo::setAgentWatch(int lintIndividu, QString lstrWatchID, bool lblGa
             return false;
     }
     return false;
+}
+
+bool getAccInfo::getWatchStatus(QString lstrSerialNo)
+{
+    //"Select count(LastActif) from  montres where (LastActif+60000)>(UNIX_TIMESTAMP(CURRENT_TIMESTAMP)*1000) AND montres.Id="
+    if (!mydb.open())
+        return false;
+    else
+    {
+        QSqlQuery sqry(mydb);
+        QString lstQuery = "Select count(LastActif) from  montres where (LastActif+60000)>(UNIX_TIMESTAMP(CURRENT_TIMESTAMP)*1000) AND montres.codeID='"+lstrSerialNo+"'";
+        //qDebug() << lstQuery;
+
+        if (sqry.exec(lstQuery))
+        {
+            if (sqry.first())
+            {
+                //qDebug() << gintCurrentWatchOffset;
+                return sqry.value(0).toBool();
+            }
+        }
+        else
+            qDebug() << lstQuery;
+        return false;
+    }
+
 }
 
 QString getAccInfo::getAgentNom(QString strMessage)

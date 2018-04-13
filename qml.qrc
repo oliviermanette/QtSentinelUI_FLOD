@@ -14,5 +14,6 @@
         <file>Agent.qml</file>
         <file>+.jpg</file>
         <file>SessionRow.qml</file>
+        <file>Image1.png</file>
     </qresource>
 </RCC>

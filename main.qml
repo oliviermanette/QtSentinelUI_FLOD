@@ -8,13 +8,13 @@ Window
     property bool gbolTotal: false
     width: 896
     height: 560
-    property int generalPadding: 5//(width*height)/100000
-    property int generalSpacing: 5//generalPadding
-    property int extendedSpacing: 10//generalSpacing * 3
-    property int tailleFLODArc: 80//(width*height)/5500
-    property int smallFontSize: 10
-    property int fontSize: 14
-    property int bigFontSize: 20
+    property int generalPadding: 4//(width*height)/100000
+    property int generalSpacing: 4//generalPadding
+    property int extendedSpacing: 8//generalSpacing * 3
+    property int tailleFLODArc: 60//(width*height)/5500
+    property int smallFontSize: 8
+    property int fontSize: 11
+    property int bigFontSize: 16
 
     property int identifiantUser: 0 // identifiant de l utilisateur affiche
 
@@ -26,13 +26,17 @@ Window
     visible: true
     title: qsTr("Vauché Prevention des TMS - FLOD")
     color: "#606060"
-    //visibility:  Window.FullScreen // <<#*********************** A decommenter
+    visibility:  Window.FullScreen // <<#*********************** A decommenter
     onDetailAgentStateChanged: {
         voirdetailAgent.state=detailAgentState;
     }
     Item
     {
         id: conteneurGeneral
+        onStateChanged: {
+            if (state=="ListAgents")
+                myPTMSServer.setAgentUpdateAll();
+        }
 
         DetailAgent
         {

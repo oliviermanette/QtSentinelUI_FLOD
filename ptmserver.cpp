@@ -75,6 +75,12 @@ void PTMServer::processTextMessage(QString message)
     }
 }
 
+bool PTMServer::setAgentUpdateAll()
+{
+    emit agentUpdater();
+    return true;
+}
+
 void PTMServer::processBinaryMessage(QByteArray message)
 {
     QWebSocket *pClient = qobject_cast<QWebSocket *>(sender());

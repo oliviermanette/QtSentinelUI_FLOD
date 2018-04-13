@@ -15,7 +15,6 @@ Canvas
     width: tailleCarre
     height: tailleCarre
 
-
     id: dessin
     function displayArc(angle)
     {
@@ -58,11 +57,11 @@ Canvas
     onPaint:
     {
         //if (cblOnce)
-        {
+        //{
             displayArc(convertExtensionToAngle(extension));
             requestPaint();
             cblOnce=false;
-        }
+        //}
     }
 
     Text {

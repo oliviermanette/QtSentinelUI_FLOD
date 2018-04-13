@@ -1,7 +1,7 @@
 import QtQuick 2.0
 
 Rectangle {
-    property int rayon: 6
+    property int rayon: 10
     id: signage
     width: rayon
     height: rayon

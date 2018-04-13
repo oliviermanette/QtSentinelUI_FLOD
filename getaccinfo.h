@@ -70,6 +70,7 @@ public:
     Q_INVOKABLE int getSessionLastCharges(int lintSession, bool lblMontre=0);
     Q_INVOKABLE int getSessionValueOCRA(int lintSession, int lintIndex);
     Q_INVOKABLE int getSessionValueRisk(int lintSession, int lintIndex);
+    Q_INVOKABLE int getSessionValueObjets(int lintSession, int lintIndex);
     Q_INVOKABLE int getSessionTotalMVT(int lintSession);
     Q_INVOKABLE int getSessionTotalObjets(int lintSession);
     Q_INVOKABLE int getSessionTotalCharges(int lintSession);
@@ -90,6 +91,8 @@ public:
     Q_INVOKABLE int getNbMontres(); // nombre de montres dans la bdd montres (toutes sauf celles recording)
     Q_INVOKABLE QString getNextWatch(); // a chaque appel retourne le serialno d'une montre
     Q_INVOKABLE bool setAgentWatch(int lintIndividu, QString lstrWatchID, bool lblGauche = false); // attribue une montre a un agent
+
+    Q_INVOKABLE bool getWatchStatus(QString lstrSerialNo);
 
     Q_INVOKABLE QString getAgentNom(QString strMessage);
 

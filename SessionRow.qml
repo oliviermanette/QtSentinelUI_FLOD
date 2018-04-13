@@ -17,6 +17,7 @@ Row {
         id: sessionText
         color: "white"
         text: qsTr("text")
+        font.pixelSize:fontSize
         MouseArea{
           anchors.fill: parent
           onClicked: {
@@ -28,6 +29,7 @@ Row {
     Text{
         id: sessionDuree
         text: "0"
+        font.pixelSize:fontSize
         color: "#DCECF2"
         width: 55
         MouseArea{
@@ -57,6 +59,7 @@ Row {
         text: "Voir ..."
         font.bold: true
         color: "pink"
+        font.pixelSize:fontSize
         MouseArea{
           anchors.fill: parent
           onClicked: {
