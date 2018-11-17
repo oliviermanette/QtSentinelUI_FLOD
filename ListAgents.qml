@@ -30,7 +30,7 @@ Item
 
         Repeater
         {
-            model:["En poste","Sur site","Deconnecte"]
+            model:["Deconnecte", "En poste", "Sur site"]
             id:repeaterToto
             Rectangle
             {
@@ -40,7 +40,7 @@ Item
                 color: "#262626"
                 //visible: false
                 radius: root.width/100
-                property int idxStatus: 2-index
+                property int idxStatus: index
                 Column
                 {
                     Text {

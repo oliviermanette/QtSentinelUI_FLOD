@@ -1,6 +1,7 @@
 QT += quick
 QT += widgets
 QT += sql
+QT += serialport
 CONFIG += c++11
 #CONFIG+= staticlib
 QT       += core websockets

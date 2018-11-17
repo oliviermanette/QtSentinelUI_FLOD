@@ -231,7 +231,7 @@ Row
                 else
                     intNbSessions = 0;
                 break;
-            case "Inactif":                
+            case "Inactif":
                 if (lintNbSessions>0)
                     intNbSessions = lintNbSessions;
                 else
@@ -588,7 +588,7 @@ Row
                 triggeredOnStart: true
                 running: true
                 onTriggered: {
-         /*           //Initialisation de l affichage
+                    //Initialisation de l affichage
                     serialNoD = accInfo.getMontreSN(identifiantUser,0);//" - "
                     serialNoG = accInfo.getMontreSN(identifiantUser);
                     lblAge.text = accInfo.getIndividuAge(identifiantUser);
@@ -600,42 +600,40 @@ Row
                     else
                         columnDisplay.displayInstantValues(chrtViewSmall.blWatch);
                     tpsTravail.extension = accInfo.getDureeTotaleEnregistrementEnMinutes();
-
-                    console.log("STATUS : "+detailAgentMain.state);*/
                 }
             }
 
-            Button
-            {
-               id       : btnTotal
-               text     : "Moyenne"
-               onClicked:
-                   if (gbolTotal)
-                   {
-                       gbolTotal = false;
-                       btnTotal.text = "Moyenne";
-                       columnDisplay.displayInstantValues(chrtViewSmall.blWatch);
-                   }
-                   else
-                   {
-                       gbolTotal = true;
-                       btnTotal.text = "Detail";
-                       columnDisplay.displayTotalValues();
-                   }
-               background: Rectangle {
-                   color:"#DCECF2"
-                   id:btnBackTotal
-                   radius: 3
-               }
-               onPressed:
-               {
-                   btnBackTotal.color = "yellow"
-               }
-               onReleased:
-               {
-                   btnBackTotal.color = "#DCECF2"
-               }
-            }
+           Button
+           {
+              id       : btnTotal
+              text     : "Total"
+              onClicked:
+                  if (gbolTotal)
+                  {
+                      gbolTotal = false;
+                      btnTotal.text = "Total";
+                      columnDisplay.displayInstantValues(chrtViewSmall.blWatch);
+                  }
+                  else
+                  {
+                      gbolTotal = true;
+                      btnTotal.text = "Instant";
+                      columnDisplay.displayTotalValues();
+                  }
+              background: Rectangle {
+                  color:"#0F6FC6"
+                  id:btnBackTotal
+                  radius: 3
+              }
+              onPressed:
+              {
+                  btnBackTotal.color = "yellow"
+              }
+              onReleased:
+              {
+                  btnBackTotal.color = "#0F6FC6"
+              }
+           }
 /*
             Button
             {
@@ -645,37 +643,8 @@ Row
             }*/
         }
     }
-
-    Rectangle
-    {
-        width: 245
-        height: root.height  - generalSpacing - generalPadding
+    ListSessions{
         id:columnListSessions
-        color: "#262626"
-        radius: root.width/150
-
-        Column
-        {
-            padding: 10//generalPadding
-            spacing : 10//extendedSpacing
-
-            Text {
-                id: txtTitleSessionList
-                text: qsTr("Liste des sessions :")
-                color: "#FCFCFC"
-                font.pixelSize: bigFontSize+4
-                font.bold: true
-            }
-            Repeater
-            {
-                model: intNbSessions
-
-                SessionRow {
-                    lintIndex : index
-                    lintIndividu: identifiantUser
-                }
-            }
-        }
     }
     Rectangle{
         id: columnDetailSessions
@@ -1044,7 +1013,6 @@ Row
                     btnCloud.color = "#DCECF2"
                 }
             }
-
         }
     }
 
@@ -1325,7 +1293,7 @@ Row
             combinaisonAcc.clear();
             for (i=0;i<lintNombre;i++)
                 combinaisonAcc.append(Number(i),accInfo.getCombinaison(i,lblMontre));
-            valueAxisY.min = accInfo.getGeneralMin(lblMontre)-2;            
+            valueAxisY.min = accInfo.getGeneralMin(lblMontre)-2;
             valueAxisY.max = accInfo.getGeneralMax(lblMontre)+2;
             */
             return 0;

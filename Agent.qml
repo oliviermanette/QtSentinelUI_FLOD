@@ -192,7 +192,7 @@ Column
             // et de toute facon un popup pour donner l autorisation
 
             // si c est msgread : popup mais rien ici a faire
-        }        
+        }
     }
     Connections{
         target: myPTMSServer

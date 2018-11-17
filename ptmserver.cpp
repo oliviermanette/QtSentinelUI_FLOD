@@ -81,6 +81,17 @@ bool PTMServer::setAgentUpdateAll()
     return true;
 }
 
+bool PTMServer::switchSessionEdit()
+{
+    emit sessionEditSwitch();
+    return true;
+}
+
+void PTMServer::switchSessionFileBDD(QString lstrState)
+{
+    emit sessionFileSwitch(lstrState);
+}
+
 void PTMServer::processBinaryMessage(QByteArray message)
 {
     QWebSocket *pClient = qobject_cast<QWebSocket *>(sender());

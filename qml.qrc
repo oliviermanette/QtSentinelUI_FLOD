@@ -15,5 +15,9 @@
         <file>+.jpg</file>
         <file>SessionRow.qml</file>
         <file>Image1.png</file>
+        <file>ListSessions.qml</file>
+        <file>+.png</file>
+        <file>delete-1-icon.png</file>
+        <file>Export PDF icon60.png</file>
     </qresource>
 </RCC>

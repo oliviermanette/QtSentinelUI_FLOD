@@ -24,7 +24,7 @@ Window
 
     id: root
     visible: true
-    title: qsTr("Vauché Prevention des TMS - FLOD")
+    title: qsTr("WatchMove by FLOD")
     color: "#606060"
     visibility:  Window.FullScreen // <<#*********************** A decommenter
     onDetailAgentStateChanged: {

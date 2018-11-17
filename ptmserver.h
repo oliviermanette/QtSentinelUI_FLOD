@@ -23,6 +23,8 @@ public:
     Q_INVOKABLE bool isRecording(QString lstrSerialNo, QString lstrMontreG, QString lstrMontreD);
     Q_INVOKABLE bool isCanIStop(QString lstrSerialNo);
     Q_INVOKABLE bool setAgentUpdateAll();
+    Q_INVOKABLE bool switchSessionEdit();
+    Q_INVOKABLE void switchSessionFileBDD(QString lstrState);
 
     ~PTMServer();
 
@@ -30,6 +32,8 @@ signals:
     void closed();
     void receivedMessage(QString message);
     void agentUpdater();
+    void sessionEditSwitch();
+    void sessionFileSwitch(QString lstrState);
 
 public slots:
     void onNewConnection();

@@ -8,8 +8,15 @@
 #include <QString>
 #include <QDir>
 #include <QDate>
+
 #include <QtSql>
 #include <QSqlQuery>
+#include <QPdfWriter>
+#include <QPainter>
+
+#include <QProcess>
+#include <QtSerialPort/QSerialPort>
+#include <QtSerialPort/QSerialPortInfo>
 
 class getAccInfo : public QObject
 {
@@ -18,7 +25,9 @@ public:
     explicit getAccInfo(QObject *parent = nullptr);
 
     Q_INVOKABLE void autoreadFile(QString qstrMontreGauche, QString qstrMontreDroit);
-    Q_INVOKABLE int readSessionFiles();
+    Q_INVOKABLE int readSessionFiles(); // lit les fichiers correspondant au timestamp
+    Q_INVOKABLE int readAllSessionFiles(); // lit tous les fichiers et les separe en sessions pour remplir la struct FileSessions // https://trello.com/c/QqAHcARc
+    Q_INVOKABLE int addSessionFiles(QString lstr1TimeStamp, int lintIndividu, int lintSessiondurationInSec);
     Q_INVOKABLE float getValueX(int lintIndex, bool lblMontre=0);
     Q_INVOKABLE float getValueY(int lintIndex, bool lblMontre=0);
     Q_INVOKABLE float getValueZ(int lintIndex, bool lblMontre=0);
@@ -58,28 +67,36 @@ public:
     Q_INVOKABLE int getAgentStatus(int lintIndex);
     Q_INVOKABLE int getNombreSessions(int lintIndex);
     Q_INVOKABLE QString getSessiondDate(int lintIndividu, int lintIndex);
+    Q_INVOKABLE QString getSessionDate(int lintSession);
+    Q_INVOKABLE QString getFileSessionDate(int lintIndex);
     Q_INVOKABLE QString getSessionDuration(int lintIndividu, int lintIndex);
+    Q_INVOKABLE QString getStrSessionDuration(int lintSession);
+    Q_INVOKABLE int getFileSessionDurationInSec(int lintIndex);
+    Q_INVOKABLE QString getFileSessionDuration(int lintIndex);
+    Q_INVOKABLE int getFileSessionNumber(int lintIndex);
+    Q_INVOKABLE QString getFileSessionTimestamp(int lintIndex);
     Q_INVOKABLE int getSessionDuration(int lintSession);  // en minutes
     Q_INVOKABLE int getCurrentSessionDuration(int lintSession); // en secondes
     Q_INVOKABLE int getSessionID(int lintIndividu, int lintIndex);
-    Q_INVOKABLE int getSessionNbEnregistrements(int lintSession);
-    Q_INVOKABLE int getSessionValueAT(int lintSession, int lintIndex);
+    Q_INVOKABLE int getSessionNbEnregistrements(int lintSession, bool lblMontreGauche=0);
+    Q_INVOKABLE int getSessionValueAT(int lintSession, int lintIndex, bool lblMontreGauche=0);
     Q_INVOKABLE int getCurrentSessionLastAT(int lintSession, bool lblMontre=0);
     Q_INVOKABLE float getSessionLastRisk(int lintSession, bool lblMontre=0);
     Q_INVOKABLE int getSessionLastObjets(int lintSession, bool lblMontre=0);
     Q_INVOKABLE int getSessionLastCharges(int lintSession, bool lblMontre=0);
-    Q_INVOKABLE int getSessionValueOCRA(int lintSession, int lintIndex);
-    Q_INVOKABLE int getSessionValueRisk(int lintSession, int lintIndex);
-    Q_INVOKABLE int getSessionValueObjets(int lintSession, int lintIndex);
-    Q_INVOKABLE int getSessionTotalMVT(int lintSession);
+    Q_INVOKABLE int getSessionValueOCRA(int lintSession, int lintIndex, bool lblMontreGauche=0);
+    Q_INVOKABLE int getSessionValueRisk(int lintSession, int lintIndex, bool lblMontreGauche=0);
+    Q_INVOKABLE int getSessionValueObjets(int lintSession, int lintIndex, bool lblMontreGauche=0);
+    Q_INVOKABLE int getSessionTotalMVT(int lintSession,bool lblMontreGauche=0);
     Q_INVOKABLE int getSessionTotalObjets(int lintSession);
     Q_INVOKABLE int getSessionTotalCharges(int lintSession);
-    Q_INVOKABLE float getSessionMeanRepetitivite(int lintSession); //repetitivite
-    Q_INVOKABLE float getSessionMeanOCRA(int lintSession); //indice_OCRA
-    Q_INVOKABLE float getSessionMeanRisque(int lintSession);//niveau_risque
-    Q_INVOKABLE float getSessionRythmeMoyenMVT(int lintSession); // en mouvements par minute
+    Q_INVOKABLE float getSessionMeanRepetitivite(int lintSession, bool lblMontreGauche=0); //repetitivite
+    Q_INVOKABLE float getSessionMeanOCRA(int lintSession, bool lblMontreGauche=0); //indice_OCRA
+    Q_INVOKABLE float getSessionMeanRisque(int lintSession, bool lblMontreGauche=0);//niveau_risque
+    Q_INVOKABLE float getSessionRythmeMoyenMVT(int lintSession,bool lblMontreGauche=0); // en mouvements par minute
     Q_INVOKABLE float getSessionLastRyhtm(int lintSession, bool lblMontre=0); //en mvt par minute
     Q_INVOKABLE int getCurrentSessionId(int lintIndividu);
+    Q_INVOKABLE bool deleteSession(int lintSession);
 
     Q_INVOKABLE bool setSessionMustStart(int lintIndividu);
     Q_INVOKABLE bool setSessionWouldStop(int lintIndividu);
@@ -96,6 +113,12 @@ public:
 
     Q_INVOKABLE QString getAgentNom(QString strMessage);
 
+    //PDF
+    Q_INVOKABLE bool generatePDF(int lintSession);
+
+    //Moteur
+    Q_INVOKABLE int controlEngine(int lintSpeed);
+
 private:
     static const int MAXACCFILES = 3; // Nombre maximal de fichiers accéléromètres pouvant être utilisés
     static const int WATCHPERAGENT = 2;
@@ -103,7 +126,7 @@ private:
     static const int TAILLEWIN = 4;
     static const int TAILLEOFF = 8; // Taille de la fenêtre de window averaging
     static const int TAILLESEARCH=10; // Recherche du min, max avant et après le chgt de signe, sachant que le fréquence d'échantillonage est de 10Hz
-    static constexpr float SEUILDETECTION = -0.1;
+    static constexpr float SEUILDETECTION = -0.01;
     static constexpr float SEUILDETECTIONDechets = -1;
     static const int SEUILACCEG = 2; // Je pense que j'ai dû ajouter ce seuil car il y avait une erreur dans SEUILDETECTION car c'est un float
     static const int NBMAXTransmissionS = 3000;
@@ -112,6 +135,7 @@ private:
     const QString UPLOADACCPATH = "/home/eldecog/nodejs/upload/";
     const QString SAVEFOLDER = "PTMS_Saved/";
     static constexpr float OCRADEFAULTRTA = 12;
+    static const int MAXFILESESSIONS = 256;
 
     void setNbDonnees(int lintValue); // Correspond aux nombre de float dans chaque fichier d'enregistrement
     void setNbAxes(int lintAxes, bool lblMontre=0);
@@ -126,11 +150,15 @@ private:
     float getOCRA4DBSession(int lintNbAT);
     float getOCRA_RTA();
     void setOcraRta(float lfltOCRA_RTA);
-    float getDbNiveauDeRisque(int lintSession);
+    float getDbNiveauDeRisque(int lintSession,bool lblMontreGauche=0);
 
     int getAgentIdFromSession(int lintSession);
 
-
+    unsigned int drawGraphOnPDF(QPainter &painter, unsigned int luintTopGraph, int lintShift = 180, int lintGraphWidth = 8000, int lintGraphHeight = 3000,
+                                int xmax=20, int ymax=14, int ymin=0, int xmin=0, QString strLabel1 = "Bras Droit", QString strLabel2 = "Bras Gauche",
+                                int lintNumberYLine = 7,int lintNumberXLine = 6, int lintMargin = 25, int lintTextOffset = 100,
+                                int lintLegendWidth = 1250, int lintLegendHeight=480, int  lintLegendMargin = 45,int lintLegendInternalMargin = 50,int lintLegendInternalVerticalMargin = 150,
+                                int lintLegendLengthTrait = 300, int lintLegendInterline = 200);
 
     //QSqlDatabase mydb = QSqlDatabase::addDatabase("QSQLITE");
     QSqlDatabase mydb = QSqlDatabase::addDatabase("QMYSQL");
@@ -179,6 +207,17 @@ private:
     } Mouvement;
 
     Mouvement TblMvt[3000];
+
+    typedef struct FileSessions{ // https://trello.com/c/QqAHcARc
+        //FileSessions() {}
+        //unsigned char uchrId; // nombre max de session 256 // pas besoin on prend le numero du tableau tblFileSession
+        unsigned long ulngTimeStamp; // c'est un timestamp
+        unsigned short ushrtDuration;// a priori au max 2560 secondes donc on passe a short pour 65 536
+        unsigned char uchrFileNumber; //nombre de fichier max 256
+        QString strIDMontre;
+    } FileSessions;
+
+    FileSessions tblFileSessions[MAXFILESESSIONS];
     // CaracteriseMVT rempli le tableau de Mouvement TblMvt à chaque Transmission
     void CaracteriseMVT(); //Fonction qui à partir de la combinaison des accéléromètres gfltCombinaisonAcc caractérise les mouvements
 
