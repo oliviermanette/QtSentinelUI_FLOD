@@ -9,9 +9,8 @@ Row
             name: "Inactif"
             PropertyChanges {
                 target: btnContact
-                visible:false
-                enabled:false
-
+                visible:true
+                enabled:true
             }
             PropertyChanges {
                 target: btnStatus
@@ -69,7 +68,6 @@ Row
                 target: btnContact
                 visible:true
                 enabled:true
-
             }
             PropertyChanges {
                 target: btnStatus
@@ -85,7 +83,6 @@ Row
                 visible:true
                 enabled:true
             }
-
             PropertyChanges {
                 target:columnListSessions
                 visible:true
@@ -124,7 +121,6 @@ Row
                 target: btnContact
                 visible:true
                 enabled:true
-
             }
             PropertyChanges {
                 target: btnStatus
@@ -178,17 +174,19 @@ Row
     spacing: generalSpacing
     property int lintUpdate: 0
     property int intNbSessions: 0
+    property int intMaxSessions: 0
+    property int constMaxSession:12
 
     ListModel{
         id: mnuDroitModel
     }
 
-    onLintUpdateChanged: // ça change au moment où on clique sur l'icone
-    {
-         //console.log("STATUS : "+ state.toString());
-        // console.log("STATUS : "+conteneurGeneral.state.toString());
+    onLintUpdateChanged: {// ça change au moment où on clique sur l'icone
         // Initialisation de l affichage
         var lintNbSessions = accInfo.getNombreSessions(identifiantUser);
+        console.log("Mise a jour du nombre de sessions :")
+        console.log(lintNbSessions);
+        intNbSessions = lintNbSessions;
         columnDetailSessions.visible = false;
 
         serialNoD = accInfo.getMontreSN(identifiantUser,0);//" - "
@@ -210,8 +208,7 @@ Row
         var textMenu="";
 
         mnuDroitModel.clear();
-        for (var i=0;i<accInfo.getNbMontres();i++)
-        {
+        for (var i=0;i<accInfo.getNbMontres();i++) {
             textMenu = accInfo.getNextWatch();
             //console.log("Menu = "+textMenu);
             mnuDroitModel.append({"name":textMenu});
@@ -222,20 +219,33 @@ Row
         lblPrenom.text = accInfo.getDBValue("identites","Prenom",identifiantUser);
         lblNom.text = accInfo.getDBValue("identites","Nom",identifiantUser);//"COYOTTE"
 
-        switch (state)
-        {
+        switch (state){
             case "Present":
-
-                if (lintNbSessions>0)
+                if (lintNbSessions>0){
                     intNbSessions = lintNbSessions;
-                else
+                    if (lintNbSessions>=constMaxSession)
+                        intMaxSessions = constMaxSession
+                    else
+                        intMaxSessions = intNbSessions;
+                }
+                else{
                     intNbSessions = 0;
+                    intMaxSessions = 0;
+                }
                 break;
             case "Inactif":
-                if (lintNbSessions>0)
+                if (lintNbSessions>0){
                     intNbSessions = lintNbSessions;
-                else
+                    if (lintNbSessions>=constMaxSession)
+                        intMaxSessions = constMaxSession
+                    else
+                        intMaxSessions = intNbSessions;
+                    //console.log(intNbSessions);
+                }
+                else{
                     intNbSessions = 0;
+                    intMaxSessions = 0;
+                }
                 break;
             case "Enregistrant":
 
@@ -249,24 +259,21 @@ Row
         }
     }
 
-    Rectangle
-    {
+    Rectangle{
         width: root.width/4.728
         height: root.height - generalSpacing - generalPadding
         id: columIdentite
         color: "#262626"
         radius: root.width/150
-        Column
-        {
+        Column{
             padding: generalPadding
             spacing : extendedSpacing
             Row{
-                Text
-                {
+                Text{
                     id: titleID
                     text: "Identité"
                     font.bold: true
-                    font.pixelSize: bigFontSize
+                    font.pixelSize: 0
                     horizontalAlignment: Text.AlignHCenter
                     color: "#FCFCFC"
                 }
@@ -275,8 +282,7 @@ Row
                     width: 20
                     color: "#262626"
                 }
-                Button
-                {
+                Button{
                     id  : btnBackToList
                     text: "< Retour "
 
@@ -285,35 +291,29 @@ Row
                         id:btnBack
                         radius: 3
                     }
-                    onPressed:
-                    {
+                    onPressed:{
                         btnBack.color = "yellow"
                     }
-                    onReleased:
-                    {
+                    onReleased:{
                         btnBack.color = "#DCECF2"
                         conteneurGeneral.state = "ListAgents";
                     }
                 }
             }
-            Image
-            {
-                source: "Image1.jpg"
+            Image{
+                source: "Image1.png"
                 width: columIdentite.width /2.5
                 fillMode: Image.PreserveAspectFit
             }
-            Row
-            {
+            Row{
                 spacing: extendedSpacing
-                Text
-                {
+                Text{
                     text: "Nom"
                     font.bold: true
                     font.pixelSize: fontSize
                     color: "#FCFCFC"
                 }
-                Text
-                {
+                Text{
                     id : lblNom
                     text: "Doe"
                     font.bold: false
@@ -321,18 +321,15 @@ Row
                     font.pixelSize: fontSize
                 }
             }
-            Row
-            {
+            Row{
                 spacing: extendedSpacing
-                Text
-                {
+                Text {
                     text: "Prénom"
                     font.bold: true
                     font.pixelSize: fontSize
                     color: "#FCFCFC"
                 }
-                Text
-                {
+                Text{
                     id : lblPrenom
                     text: "John"
                     font.bold: false
@@ -340,18 +337,15 @@ Row
                     font.pixelSize: fontSize
                 }
             }
-            Row
-            {
+            Row{
                 spacing: extendedSpacing
-                Text
-                {
+                Text{
                     text: "Age : "
                     font.bold: true
                     font.pixelSize: fontSize
                     color: "#FCFCFC"
                 }
-                Text
-                {
+                Text{
                     id: lblAge
                     text: ""
                     font.bold: false
@@ -360,8 +354,7 @@ Row
                 }
             }
 
-            Button
-            {
+            Button{
                 id:btnContact
                 contentItem: Label {
                     //color: "white"
@@ -369,33 +362,31 @@ Row
                     font.bold: true
                     font.pixelSize: smallFontSize
                 }
+
                 background: Rectangle {
                     color:"#DCECF2"
                     id:toto
                     radius: 3
                 }
-                onPressed:
-                {
+                onPressed:{
                     toto.color = "yellow"
+                    accInfo.controlEngine(1);
                 }
-                onReleased:
-                {
+                onReleased:{
                     toto.color = "#DCECF2"
+                    console.log(accInfo.controlEngine(0));
                 }
             }
-            Column
-            {
+            Column{
                 spacing: 20
-                Text
-                {
+                Text{
                     id: lblStatus
                     text: ""
                     font.bold: false
                     color: "#FCFCFC"
                     font.pixelSize: fontSize
                 }
-                Button
-                {
+                Button{
                     id:btnStatus
                     contentItem: Label {
                         id:lblbtnStatus
@@ -409,10 +400,8 @@ Row
                         id:titi
                         radius: 3
                     }
-                    onPressed:
-                    {
-                        switch (detailAgentMain.state)
-                        {
+                    onPressed:{
+                        switch (detailAgentMain.state){
                             case "Inactif":
                                 //console.log("here inactive");
                                 //si la montre n'est pas branche on ne peut rien faire
@@ -439,32 +428,25 @@ Row
                             // var lblbtnStatusMSG = message;
                             // lblbtnStatusMSG
                             // lblbtnStatus.text.toString()
-                            if (myPTMSServer.isOKStop(message,serialNoD,serialNoG ))
-                            {
+                            if (myPTMSServer.isOKStop(message,serialNoD,serialNoG )){
                                 lblbtnStatus.text = "Demarre !";
                                 detailAgentMain.state = "Present";
                             }
-                            else if (myPTMSServer.isRecording(message,serialNoD,serialNoG ))
-                            {
+                            else if (myPTMSServer.isRecording(message,serialNoD,serialNoG )){
                                 lblbtnStatus.text = "Arrete !";
                                 detailAgentMain.state = "Enregistrant";
                             }
-
                         }
                     }
-                    onReleased:
-                    {
+                    onReleased:{
                         titi.color = "#DCECF2"
                     }
                 }
             }
 
-            Column
-            {
+            Column{
                 spacing: extendedSpacing
-
-                Text
-                {
+                Text{
                     text: "Montre Gauche : "+serialNoG
                     font.bold: true
                     font.pixelSize: smallFontSize
@@ -479,25 +461,20 @@ Row
                             color:"#DCECF2"
                             radius: 3
                         }
-                        onPressed:
-                        {
+                        onPressed:{
                             toto.color = "yellow"
                         }
-                        onReleased:
-                        {
+                        onReleased:{
                             toto.color = "#DCECF2"
                         }
                         onClicked: {
                             montreGaucheSelection.addItem(qsTr("item3"));
-                            //montreGaucheSelection.insertItem(0,montreGaucheSelection.addItem("toto"));
                             montreGaucheSelection.open();
                         }
 
-                        Menu
-                        {
+                        Menu{
                             id: montreGaucheSelection
-                            title: serialNoG//"RSAJ303LQAR"
-
+                            title: serialNoG
                             Repeater {
                                 id: idInstGauche
                                     model: mnuDroitModel
@@ -505,26 +482,20 @@ Row
                                         text: model.name
                                         onTriggered: {
                                             accInfo.setAgentWatch(identifiantUser,model.name,true);
-                                            //serialNoD = accInfo.getMontreSN(identifiantUser,0);//" - "
                                             serialNoG = accInfo.getMontreSN(identifiantUser);
                                         }
                                     }
-                                    //onObjectAdded: montreGaucheSelection.insertItem(index, object)
-                                    //onObjectRemoved: montreGaucheSelection.removeItem(object)
                                 }
                         }
                     }
-                    Light
-                    {
+                    Light{
                         id:lightMontreGauche
                     }
                 }
             }
-            Column
-            {
+            Column{
                 spacing: extendedSpacing
-                Text
-                {
+                Text{
                     text: "Montre Droite : "+ serialNoD
                     font.bold: true
                     font.pixelSize: smallFontSize
@@ -535,26 +506,23 @@ Row
                     Button {
                         id: btnMnuMontreDroite
                         text: serialNoD
-                        background: Rectangle {
+                        background: Rectangle{
                             color:"#DCECF2"
                             radius: 3
                         }
-                        onPressed:
-                        {
+                        onPressed:{
                             toto.color = "yellow"
                         }
-                        onReleased:
-                        {
+                        onReleased:{
                             toto.color = "#DCECF2"
                         }
-                        onClicked: {
+                        onClicked:{
                             montreDroiteSelection.open();
                         }
 
-                        Menu
-                        {
+                        Menu{
                             id: montreDroiteSelection
-                            title: serialNoD//"RSAJ303LQAR"
+                            title: serialNoD
 
                             Repeater {
                                 id: idInstDroit
@@ -564,78 +532,50 @@ Row
 
                                         onTriggered: {
                                             accInfo.setAgentWatch(identifiantUser,model.name,false);
-                                            serialNoD = accInfo.getMontreSN(identifiantUser,0);//" - "
-                                            //serialNoG = accInfo.getMontreSN(identifiantUser);
+                                            serialNoD = accInfo.getMontreSN(identifiantUser,0);
                                         }
                                     }
-                                   // onObjectAdded: montreDroiteSelection.insertItem(index, object)
-                                   // onObjectRemoved: montreDroiteSelection.removeItem(object)
                                 }
                         }
                     }
-                    Light
-                    {
+                    Light{
                         id:lightMontreDroit
                     }
                 }
-
-            }
-            Timer
-            {
-                id : onStartFunction
-                interval: 10000
-                repeat: false
-                triggeredOnStart: true
-                running: true
-                onTriggered: {
-                    //Initialisation de l affichage
-                    serialNoD = accInfo.getMontreSN(identifiantUser,0);//" - "
-                    serialNoG = accInfo.getMontreSN(identifiantUser);
-                    lblAge.text = accInfo.getIndividuAge(identifiantUser);
-                    lblPrenom.text = accInfo.getDBValue("identites","Prenom",identifiantUser);
-                    lblNom.text = accInfo.getDBValue("identites","Nom",identifiantUser);//"COYOTTE"
-                    accInfo.autoreadFile(serialNoG,serialNoD);
-                    if (gbolTotal)
-                        columnDisplay.displayTotalValues();
-                    else
-                        columnDisplay.displayInstantValues(chrtViewSmall.blWatch);
-                    tpsTravail.extension = accInfo.getDureeTotaleEnregistrementEnMinutes();
-                }
             }
 
-           Button
-           {
-              id       : btnTotal
-              text     : "Total"
-              onClicked:
-                  if (gbolTotal)
-                  {
-                      gbolTotal = false;
-                      btnTotal.text = "Total";
-                      columnDisplay.displayInstantValues(chrtViewSmall.blWatch);
-                  }
-                  else
-                  {
-                      gbolTotal = true;
-                      btnTotal.text = "Instant";
-                      columnDisplay.displayTotalValues();
-                  }
-              background: Rectangle {
-                  color:"#0F6FC6"
-                  id:btnBackTotal
-                  radius: 3
-              }
-              onPressed:
-              {
-                  btnBackTotal.color = "yellow"
-              }
-              onReleased:
-              {
-                  btnBackTotal.color = "#0F6FC6"
-              }
-           }
-/*
             Button
+            {
+               id       : btnTotal
+               text     : "Moyenne"
+               onClicked:
+                   if (gbolTotal)
+                   {
+                       gbolTotal = false;
+                       btnTotal.text = "Moyenne";
+                       columnDisplay.displayInstantValues(chrtViewSmall.blWatch);
+                   }
+                   else
+                   {
+                       gbolTotal = true;
+                       btnTotal.text = "Detail";
+                       columnDisplay.displayTotalValues();
+                   }
+               background: Rectangle {
+                   color:"#DCECF2"
+                   id:btnBackTotal
+                   radius: 3
+               }
+               onPressed:
+               {
+                   btnBackTotal.color = "yellow"
+               }
+               onReleased:
+               {
+                   btnBackTotal.color = "#DCECF2"
+               }
+            }
+/*          Button
             {
                text: "Quitter"
                onClicked:
@@ -643,9 +583,11 @@ Row
             }*/
         }
     }
+
     ListSessions{
         id:columnListSessions
     }
+
     Rectangle{
         id: columnDetailSessions
         width: root.width/2.68
@@ -676,19 +618,21 @@ Row
             Rouge   :   > 3,5       Risque plus de deux fois plus grand que pour la case verte */
             if ((lintConvenientTemp / 10.0)<2.2){
                 meanOCRASession.color = "green";
-                valeursOCRA.color =  "green";
-                axisYOCRA.color=  "green";
+               // valeursOCRA.color =  "green";
+                //axisYOCRA.color=  "green";
             }
             else if ((lintConvenientTemp / 10.0)<3.5){
                 meanOCRASession.color = "orange";
-                valeursOCRA.color =  "orange";
-                axisYOCRA.color=  "orange";
+                //valeursOCRA.color =  "orange";
+                //axisYOCRA.color=  "orange";
             }
             else{
                 meanOCRASession.color = "red";
-                valeursOCRA.color =  "red";
-                axisYOCRA.color=  "red";
+                //valeursOCRA.color =  "red";
+                //axisYOCRA.color=  "red";
             }
+            axisYOCRA.color=  "blue";
+            valeursOCRA.color = "blue";
 
             lintConvenientTemp = accInfo.getSessionMeanRisque(lintSessionId)*10;
             meanRiskSession.text = lintConvenientTemp / 10.0;
@@ -704,7 +648,7 @@ Row
             else if ((lintConvenientTemp / 10.0)<67){
                 meanRiskSession.color = "orange";
                 avisRisque.color= "orange";
-                avisRisque.text = " Risque modere ";
+                avisRisque.text = " Risque moderé ";
                 axisYtms.max = 67;
                 valeursTMS.color= "orange";
                 valeursAccAT.color = "orange";
@@ -724,15 +668,16 @@ Row
             valeursAccAT.clear();
             valeursOCRA.clear();
             valeursTMS.clear();
-            lintConvenientTemp = accInfo.getSessionNbEnregistrements(lintSessionId)
+            lintConvenientTemp = accInfo.getSessionNbEnregistrementsMinutes(lintSessionId);
             axisXOCRA.max = lintConvenientTemp;
             axisXat.max = lintConvenientTemp;
             axisXtms.max = lintConvenientTemp;
+            var iNb = 0;
             for (var i=0;i<lintConvenientTemp;i++)
             {
-                valeursAccAT.append(Number(i),accInfo.getSessionValueAT(lintSessionId,i));
-                valeursOCRA.append(Number(i),accInfo.getSessionValueOCRA(lintSessionId,i));
-                valeursTMS.append(Number(i),accInfo.getSessionValueRisk(lintSessionId,i));
+                valeursAccAT.append(Number(i),accInfo.getSessionValueATParMinute(lintSessionId,i));
+                valeursOCRA.append(Number(i),accInfo.getSessionValueOCRAParMinute(lintSessionId,i));
+                valeursTMS.append(Number(i),accInfo.getSessionValueRiskParMinute(lintSessionId,i));
             }
         }
 
@@ -783,8 +728,8 @@ Row
             ChartView{
                 //y: affichageNombreExtension.y
                 id: chrtViewNbActions
-                width: 220
-                height: 90
+                width: 230
+                height: 100
                 theme: ChartView.ChartThemeDark
                 antialiasing: true
                 margins.top: 0
@@ -849,8 +794,8 @@ Row
             ChartView{
                 //y: affichageNombreExtension.y
                 id: chrtViewRisquesTMS
-                width: 220
-                height: 90
+                width: 230
+                height: 100
                 theme: ChartView.ChartThemeDark
                 antialiasing: true
                 margins.top: 0
@@ -902,9 +847,10 @@ Row
             Row{
                 Text {
                     text: qsTr("OCRA : ")
-                    color: "#FCFCFC"
+                    //color: "#FCFCFC"
                     font.pixelSize: fontSize//bigFontSize
                     font.bold: true
+                    color: "#5a6fd7"
                 }
                 Text {
                     id: meanOCRASession
@@ -1013,6 +959,7 @@ Row
                     btnCloud.color = "#DCECF2"
                 }
             }
+
         }
     }
 

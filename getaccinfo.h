@@ -79,12 +79,16 @@ public:
     Q_INVOKABLE int getCurrentSessionDuration(int lintSession); // en secondes
     Q_INVOKABLE int getSessionID(int lintIndividu, int lintIndex);
     Q_INVOKABLE int getSessionNbEnregistrements(int lintSession, bool lblMontreGauche=0);
+    Q_INVOKABLE int getSessionNbEnregistrementsMinutes(int lintSession, bool lblMontreGauche=0);
     Q_INVOKABLE int getSessionValueAT(int lintSession, int lintIndex, bool lblMontreGauche=0);
+    Q_INVOKABLE int getSessionValueATParMinute(int lintSession, int lintIndex, bool lblMontreGauche=0);
+    Q_INVOKABLE int getSessionValueRiskParMinute(int lintSession, int lintIndex, bool lblMontreGauche=0);
     Q_INVOKABLE int getCurrentSessionLastAT(int lintSession, bool lblMontre=0);
     Q_INVOKABLE float getSessionLastRisk(int lintSession, bool lblMontre=0);
     Q_INVOKABLE int getSessionLastObjets(int lintSession, bool lblMontre=0);
     Q_INVOKABLE int getSessionLastCharges(int lintSession, bool lblMontre=0);
     Q_INVOKABLE int getSessionValueOCRA(int lintSession, int lintIndex, bool lblMontreGauche=0);
+    Q_INVOKABLE int getSessionValueOCRAParMinute(int lintSession, int lintIndex, bool lblMontreGauche=0);
     Q_INVOKABLE int getSessionValueRisk(int lintSession, int lintIndex, bool lblMontreGauche=0);
     Q_INVOKABLE int getSessionValueObjets(int lintSession, int lintIndex, bool lblMontreGauche=0);
     Q_INVOKABLE int getSessionTotalMVT(int lintSession,bool lblMontreGauche=0);

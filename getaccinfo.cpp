@@ -290,7 +290,7 @@ int getAccInfo::readSessionFiles(){
               //  strSessionId+ ", " + strSerialNo + ", " + QString::number(luintTimeOffset) + ", " + QString::number(getDureeTransmission()) + ", " + QString::number(lintNbMvt) + ", " + QString::number(lintNbDechet) + ")");
 
                 // indice OCRA
-                    // calcul de l4indice ATA (actual Technical Actions : represente le nombre d'actions techniques que l'on effectue pendant toute la duree du poste.
+                    // calcul de l'indice ATA (actual Technical Actions : represente le nombre d'actions techniques que l'on effectue pendant toute la duree du poste.
                     // Calcul du RTA : k  *  F * P * R * Fa * Rc * D
                         // k = 30
                         // F = 0,7
@@ -1807,6 +1807,13 @@ int getAccInfo::getSessionNbEnregistrements(int lintSession, bool lblMontreGauch
     }
 }
 
+int getAccInfo::getSessionNbEnregistrementsMinutes(int lintSession, bool lblMontreGauche)
+{
+
+    return getSessionNbEnregistrements(lintSession,lblMontreGauche)/ (60/gIntDureeEnSecondeTransmission);
+
+}
+
 int getAccInfo::getSessionValueAT(int lintSession, int lintIndex, bool lblMontreGauche)
 {
     //SELECT nb_actions from enregistrements where enregistrements.Session=93 limit 1 offset 0;
@@ -1829,6 +1836,57 @@ int getAccInfo::getSessionValueAT(int lintSession, int lintIndex, bool lblMontre
             qDebug() << lstQuery;
         return -9;
     }
+}
+
+int getAccInfo::getSessionValueATParMinute(int lintSession, int lintIndex, bool lblMontreGauche)
+{
+    float tmpValue=0;
+    int lintNb = 0;
+    for (int i=lintIndex;i<lintIndex+(60/gIntDureeEnSecondeTransmission);i++){
+        int  lintTmpValue = getSessionValueAT(lintSession,i,lblMontreGauche);
+        if ((lintTmpValue!=-9) && ((lintTmpValue!=-99))){
+            tmpValue += lintTmpValue;
+            lintNb++;
+        }
+        else
+            break;
+    }
+    tmpValue /= lintNb;
+    return qFloor(tmpValue);
+}
+
+int getAccInfo::getSessionValueRiskParMinute(int lintSession, int lintIndex, bool lblMontreGauche)
+{
+    float tmpValue=0;
+    int lintNb = 0;
+    for (int i=lintIndex;i<lintIndex+(60/gIntDureeEnSecondeTransmission);i++){
+        int  lintTmpValue = getSessionValueRisk(lintSession,i,lblMontreGauche);
+        if ((lintTmpValue!=-9) && ((lintTmpValue!=-99))){
+            tmpValue += lintTmpValue;
+            lintNb++;
+        }
+        else
+            break;
+    }
+    tmpValue /= lintNb;
+    return qFloor(tmpValue);
+}
+
+int getAccInfo::getSessionValueOCRAParMinute(int lintSession, int lintIndex, bool lblMontreGauche)
+{
+    float tmpValue=0;
+    int lintNb = 0;
+    for (int i=lintIndex;i<lintIndex+(60/gIntDureeEnSecondeTransmission);i++){
+        int  lintTmpValue = getSessionValueOCRA(lintSession,i,lblMontreGauche);
+        if ((lintTmpValue!=-9) && ((lintTmpValue!=-99))){
+            tmpValue += lintTmpValue;
+            lintNb++;
+        }
+        else
+            break;
+    }
+    tmpValue /= lintNb;
+    return qFloor(tmpValue);
 }
 
 int getAccInfo::getCurrentSessionLastAT(int lintSession, bool lblMontre)
