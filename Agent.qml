@@ -136,6 +136,8 @@ Column
                     visible = false;
                 else{
                     extension = accInfo.getSessionRythmeMoyenMVT(accInfo.getCurrentSessionId(lintIdentifiantUser));
+                    if (extension<accInfo.getSessionRythmeMoyenMVT(accInfo.getCurrentSessionId(lintIdentifiantUser),1))
+                        extension = accInfo.getSessionRythmeMoyenMVT(accInfo.getCurrentSessionId(lintIdentifiantUser),1);
                     if (extension<0)
                         extension = 0;
                     dessin.displayArc(dessin.convertExtensionToAngle(extension));

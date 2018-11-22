@@ -61,6 +61,7 @@ public:
     Q_INVOKABLE int getAgentId(int lintIndex); // SELECT Id from Identites limit 1 offset lintIndex
     Q_INVOKABLE int getAgentId(QString strSerialNo);// a partir de sa montre
     Q_INVOKABLE int getAgentIdFromMessage(QString strMessage); //dans un message
+    //Q_INVOKABLE int getAge
 
     // SESSION
     Q_INVOKABLE QString getCoreMessage(QString strSerialNo, bool lblOffset);
@@ -155,6 +156,8 @@ private:
     float getOCRA_RTA();
     void setOcraRta(float lfltOCRA_RTA);
     float getDbNiveauDeRisque(int lintSession,bool lblMontreGauche=0);
+    bool deletePreviousSessions();
+    bool cancelActiveSessions();
 
     int getAgentIdFromSession(int lintSession);
 

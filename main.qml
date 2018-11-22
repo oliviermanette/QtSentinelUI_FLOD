@@ -12,9 +12,9 @@ Window
     property int generalSpacing: 4//generalPadding
     property int extendedSpacing: 8//generalSpacing * 3
     property int tailleFLODArc: 60//(width*height)/5500
-    property int smallFontSize: 8
-    property int fontSize: 11
-    property int bigFontSize: 16
+    property int smallFontSize: 10
+    property int fontSize: 13
+    property int bigFontSize: 19
 
     property int identifiantUser: 0 // identifiant de l utilisateur affiche
 

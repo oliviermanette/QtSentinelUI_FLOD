@@ -182,6 +182,21 @@ Row
     }
 
     onLintUpdateChanged: {// ça change au moment où on clique sur l'icone
+        switch (accInfo.getAgentStatus(identifiantUser)){
+            case 0:
+                detailAgentMain.state = "Inactif";
+                break;
+            case 1:
+                detailAgentMain.state = "Present";
+                break;
+            case 2:
+                detailAgentMain.state = "Enregistrant";
+                break;
+            default:
+                detailAgentMain.state = "Inactif";
+        }
+
+        //detailAgentMain.state = "Present";
         // Initialisation de l affichage
         var lintNbSessions = accInfo.getNombreSessions(identifiantUser);
         console.log("Mise a jour du nombre de sessions :")
@@ -297,6 +312,7 @@ Row
                     onReleased:{
                         btnBack.color = "#DCECF2"
                         conteneurGeneral.state = "ListAgents";
+                        identifiantUser = 0;
                     }
                 }
             }
@@ -604,30 +620,39 @@ Row
             dtlSessionDate.text = accInfo.getSessiondDate(lintIndividu, lintIndex);
             dtlSessionDuree.text = accInfo.getSessionDuration(lintIndividu, lintIndex);
             sumATSession.text = accInfo.getSessionTotalMVT(lintSessionId);
+            sumATSessionG.text = accInfo.getSessionTotalMVT(lintSessionId, 1);
             //var lfltRythmeMvt = accInfo.getSessionRythmeMoyenMVT(lintSessionId)
             lintConvenientTemp = accInfo.getSessionRythmeMoyenMVT(lintSessionId);
-            rythmATSession.text = " ("+lintConvenientTemp.toString()+" mvt/min) ";
+            rythmATSession.text = " ("+lintConvenientTemp.toString()+" at/min) ";
+            lintConvenientTemp = accInfo.getSessionRythmeMoyenMVT(lintSessionId,1);
+            rythmATSessionG.text = " ("+lintConvenientTemp.toString()+"/min) ";
             nbobjettriesSession.extension = accInfo.getSessionTotalObjets(lintSessionId);
+
             nbchargesLourdesSession.extension = accInfo.getSessionTotalCharges(lintSessionId);
             repetitiviteSession.extension = accInfo.getSessionMeanRepetitivite(lintSessionId);
             lintConvenientTemp = accInfo.getSessionMeanOCRA(lintSessionId)*10;
             meanOCRASession.text = lintConvenientTemp / 10.0;
+            lintConvenientTemp = accInfo.getSessionMeanOCRA(lintSessionId,1)*10;
+            meanOCRASessionG.text = "(G: "+lintConvenientTemp / 10.0 +")";
             /*
             Vert    :   < 2,2       Pas de risque
             Jaune   :   2,3 - 3,5   Risque faible, moins du double que pour la case verte
             Rouge   :   > 3,5       Risque plus de deux fois plus grand que pour la case verte */
             if ((lintConvenientTemp / 10.0)<2.2){
                 meanOCRASession.color = "green";
+                meanOCRASessionG.color = "green";
                // valeursOCRA.color =  "green";
                 //axisYOCRA.color=  "green";
             }
             else if ((lintConvenientTemp / 10.0)<3.5){
                 meanOCRASession.color = "orange";
+                meanOCRASessionG.color = "orange";
                 //valeursOCRA.color =  "orange";
                 //axisYOCRA.color=  "orange";
             }
             else{
                 meanOCRASession.color = "red";
+                meanOCRASessionG.color = "red";
                 //valeursOCRA.color =  "red";
                 //axisYOCRA.color=  "red";
             }
@@ -636,9 +661,12 @@ Row
 
             lintConvenientTemp = accInfo.getSessionMeanRisque(lintSessionId)*10;
             meanRiskSession.text = lintConvenientTemp / 10.0;
+            lintConvenientTemp = accInfo.getSessionMeanRisque(lintSessionId,1)*10;
+            meanRiskSessionG.text = "(G: "+lintConvenientTemp / 10.0+")";
             if ((lintConvenientTemp / 10.0)<33){
                 avisRisque.color= "green";
                 meanRiskSession.color = "green";
+                meanRiskSessionG.color = "green";
                 avisRisque.text = " Risque nul ou tres faible ";
                 axisYtms.max = 33;
                 valeursTMS.color= "green";
@@ -647,6 +675,7 @@ Row
             }
             else if ((lintConvenientTemp / 10.0)<67){
                 meanRiskSession.color = "orange";
+                meanRiskSessionG.color = "orange";
                 avisRisque.color= "orange";
                 avisRisque.text = " Risque moderé ";
                 axisYtms.max = 67;
@@ -656,6 +685,7 @@ Row
             }
             else{
                 meanRiskSession.color = "red";
+                meanRiskSessionG.color = "red";
                 avisRisque.color= "red";
                 avisRisque.text = " Risque important, prendre des mesures ";
                 axisYtms.max = 100;
@@ -663,12 +693,16 @@ Row
                 valeursAccAT.color = "red";
                 axisYtms.color= "red";
             }
+            valeursAccATG.style=  2;
             meanRiskSession.text = meanRiskSession.text + "%";
 
             valeursAccAT.clear();
+            valeursAccATG.clear();
             valeursOCRA.clear();
             valeursTMS.clear();
             lintConvenientTemp = accInfo.getSessionNbEnregistrementsMinutes(lintSessionId);
+            if (lintConvenientTemp<accInfo.getSessionNbEnregistrementsMinutes(lintSessionId,1))
+                lintConvenientTemp=accInfo.getSessionNbEnregistrementsMinutes(lintSessionId,1);
             axisXOCRA.max = lintConvenientTemp;
             axisXat.max = lintConvenientTemp;
             axisXtms.max = lintConvenientTemp;
@@ -676,6 +710,7 @@ Row
             for (var i=0;i<lintConvenientTemp;i++)
             {
                 valeursAccAT.append(Number(i),accInfo.getSessionValueATParMinute(lintSessionId,i));
+                valeursAccATG.append(Number(i),accInfo.getSessionValueATParMinute(lintSessionId,i,1));
                 valeursOCRA.append(Number(i),accInfo.getSessionValueOCRAParMinute(lintSessionId,i));
                 valeursTMS.append(Number(i),accInfo.getSessionValueRiskParMinute(lintSessionId,i));
             }
@@ -757,6 +792,14 @@ Row
                     axisX:axisXat
                     name: "AT"
                 }
+                LineSeries
+                {
+                    id: valeursAccATG
+                    axisY: axisYat
+                    axisX:axisXat
+                    name: "ATG"
+
+                }
             }
             Row{
                 Text {
@@ -774,6 +817,26 @@ Row
                 }
                 Text {
                     id: rythmATSession
+                    text: qsTr(" (20/min)")
+                    color: "#FCFCFC"
+                    font.pixelSize: fontSize+2
+                    font.bold: true
+                }
+                Text {
+                    text: qsTr("Gauche : ")
+                    color: "#FCFCFC"
+                    font.pixelSize: fontSize
+                    //font.bold: true
+                }
+                Text {
+                    id: sumATSessionG
+                    text: qsTr("892")
+                    color: "#FCFCFC"
+                    font.pixelSize: fontSize+2
+                    font.bold: true
+                }
+                Text {
+                    id: rythmATSessionG
                     text: qsTr(" (20/min)")
                     color: "#FCFCFC"
                     font.pixelSize: fontSize+2
@@ -859,6 +922,22 @@ Row
                     font.pixelSize: fontSize//bigFontSize
                     font.bold: true
                 }
+
+                Text {
+                    id: meanOCRASessionG
+                    text: qsTr("2.8 ")
+                    color: "red"
+                    font.pixelSize: fontSize//bigFontSize
+                    font.bold: true
+                }
+                Text {
+                    text: qsTr("    ")
+                    //color: "#FCFCFC"
+                    font.pixelSize: fontSize//bigFontSize
+                    font.bold: true
+                    color: "#5a6fd7"
+                }
+
                 Text {
                     text: qsTr("  Risque : ")
                     color: "#FCFCFC"
@@ -867,6 +946,13 @@ Row
                 }
                 Text {
                     id: meanRiskSession
+                    text: qsTr("72% ")
+                    color: "pink"
+                    font.pixelSize: fontSize//bigFontSize
+                    font.bold: true
+                }
+                Text {
+                    id: meanRiskSessionG
                     text: qsTr("72% ")
                     color: "pink"
                     font.pixelSize: fontSize//bigFontSize
@@ -1098,7 +1184,16 @@ Row
                             color: "red"
                             name: "Niveau de Risques"
                         }
-                    }
+
+                        LineSeries
+                        {
+                            id: valeursRiskCG
+                            axisY: axisYriskC
+                            axisX:axisXriskC
+                            color: "red"
+                            style: Qt.DashLine
+                            name: "Niveau de Risques"
+                        }}
 
                     FlodDrawArcTitle
                     {
@@ -1155,6 +1250,15 @@ Row
                             axisX:axisXatC
                             color: "purple"
                             name: "Nombre d'actions"
+                        }
+                        LineSeries
+                        {
+                            id: valeursAccATCG
+                            axisY: axisYatC
+                            axisX:axisXatC
+                            color: "purple"
+                            style: Qt.DashLine
+                            name: "Nombre d'actions Gauche"
                         }
                     }
                     FlodDrawArcTitle
@@ -1250,6 +1354,9 @@ Row
             //identifiantUser
             var lintSessionId = accInfo.getCurrentSessionId(identifiantUser);
             var lintNombre = accInfo.getSessionNbEnregistrements(lintSessionId);//accInfo.getIntNbTotalTransmission();
+            if (lintNombre<accInfo.getSessionNbEnregistrements(lintSessionId,1))
+                lintNombre=accInfo.getSessionNbEnregistrements(lintSessionId,1);
+
 
             chrtViewNbActionsC.visible = true;
             chrtVwCurrentRisk.visible = true;
@@ -1270,13 +1377,20 @@ Row
             nbChargesLourdes.visible = false;
             chrtVwNbChargesC.visible = true;
 
+            if (lintNombre<1){
+                return 0;
+            }
+
             columnDroiteBiomeca.spacing = extendedSpacing*0.9;
             clmnTempsRythme.spacing = extendedSpacing*0.7;
             //Affiche les valeurs moyennes
             valeursAccATC.clear();
+            valeursAccATCG.clear();
             //valeursOCRA.clear();
             valeursRiskC.clear();
+            valeursRiskCG.clear();
             valeursDechetsC.clear();
+            valeursDechetsCG.clear();
             //lintConvenientTemp = accInfo.getSessionNbEnregistrements(lintSessionId)
             //axisXOCRA.max = lintConvenientTemp;
             axisXatC.max = lintNombre;
@@ -1287,13 +1401,16 @@ Row
             for (var i=0;i<lintNombre;i++)
             {
                 valeursAccATC.append(Number(i),accInfo.getSessionValueAT(lintSessionId,i));
+                valeursAccATCG.append(Number(i),accInfo.getSessionValueAT(lintSessionId,i,1));
                 //valeursOCRA.append(Number(i),accInfo.getSessionValueOCRA(lintSessionId,i));
                 valeursRiskC.append(Number(i),accInfo.getSessionValueRisk(lintSessionId,i));
+                valeursRiskCG.append(Number(i),accInfo.getSessionValueRisk(lintSessionId,i,1));
                 valeursDechetsC.append(Number(i),accInfo.getSessionValueObjets(lintSessionId,i));
+                valeursDechetsCG.append(Number(i),accInfo.getSessionValueObjets(lintSessionId,i,1));
                 //valeursChargesC
             }
             rythme.extension =accInfo.getSessionRythmeMoyenMVT(lintSessionId);
-            rythme.extension2 =0;
+            rythme.extension2 =accInfo.getSessionRythmeMoyenMVT(lintSessionId,1);
 
             return 0;
         }
@@ -1370,6 +1487,15 @@ Row
                         {
                             id: valeursDechetsC
                             axisY: axisYDechetsC
+                            axisX: axisXDechetsC
+                            color: "gold"
+                            name: "Nb Déchets triés"
+                        }
+                        LineSeries
+                        {
+                            id: valeursDechetsCG
+                            axisY: axisYDechetsC
+                            style: Qt.DashLine
                             axisX: axisXDechetsC
                             color: "gold"
                             name: "Nb Déchets triés"

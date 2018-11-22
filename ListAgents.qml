@@ -30,7 +30,7 @@ Item
 
         Repeater
         {
-            model:["Deconnecte", "En poste", "Sur site"]
+            model:["Deconnecte", "Sur site", "En poste"]
             id:repeaterToto
             Rectangle
             {
